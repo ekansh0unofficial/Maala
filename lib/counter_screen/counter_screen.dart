@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maala_app/settings_screen/settings_screen.dart';
 import '../services/shared_pref_helper.dart';
 
 class CounterScreen extends StatefulWidget {
@@ -54,7 +55,12 @@ class _CounterScreenState extends State<CounterScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings, color: Colors.white),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingsScreen()),
+                    );
+                  },
                 ),
               ],
             ),
