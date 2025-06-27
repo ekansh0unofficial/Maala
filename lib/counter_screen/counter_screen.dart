@@ -1,4 +1,3 @@
-// lib/screens/counter_screen.dart
 import 'package:flutter/material.dart';
 import '../services/shared_pref_helper.dart';
 
@@ -66,12 +65,7 @@ class _CounterScreenState extends State<CounterScreen> {
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(
-                    192,
-                    231,
-                    230,
-                    230,
-                  ).withAlpha(200),
+                  color: const Color.fromARGB(123, 0, 0, 0).withAlpha(200),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -86,32 +80,8 @@ class _CounterScreenState extends State<CounterScreen> {
                   style: const TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Colors.white,
                   ),
-                ),
-              ),
-            ),
-            bottomNavigationBar: BottomAppBar(
-              color: Colors.transparent,
-              elevation: 0,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: const [
-                    Icon(
-                      Icons.self_improvement,
-                      size: 32,
-                      color: Colors.white,
-                      shadows: [Shadow(blurRadius: 8)],
-                    ),
-                    Icon(
-                      Icons.favorite,
-                      size: 32,
-                      color: Colors.white,
-                      shadows: [Shadow(blurRadius: 8)],
-                    ),
-                  ],
                 ),
               ),
             ),

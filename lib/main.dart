@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:maala_app/counter_screen/counter_screen.dart';
+import 'package:maala_app/home.dart';
 import 'package:maala_app/services/shared_pref_helper.dart';
 
 void main() async {
@@ -13,6 +13,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: CounterScreen());
+    return const MaterialApp(home: HomeScreen());
   }
 }

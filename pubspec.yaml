@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences:  
+  palette_generator: 
+  google_nav_bar:
 
 dev_dependencies:
   flutter_test:
