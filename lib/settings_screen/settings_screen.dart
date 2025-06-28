@@ -1,6 +1,7 @@
 // lib/screens/settings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
+import 'package:maala_app/settings_screen/image_picker.dart';
 import '../services/shared_pref_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -66,7 +67,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-            onTap: () {},
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => const BackgroundPickerDialog(),
+              ).then((_) => setState(() {}));
+            },
           ),
         ],
       ),

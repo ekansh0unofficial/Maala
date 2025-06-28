@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maala_app/settings_screen/settings_screen.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
 import '../services/shared_pref_helper.dart';
 
@@ -12,12 +13,14 @@ class TimerScreen extends StatefulWidget {
 class _TimerScreenState extends State<TimerScreen> {
   bool _isRunning = false;
   Duration _remaining = const Duration();
+  String? bg;
 
   @override
   void initState() {
     super.initState();
 
     _isRunning = SharedPrefHelper.getTimerRunning();
+    bg = SharedPrefHelper.getBackgroundImage();
     TimerHelper.initialize(_updateRemaining);
 
     if (_isRunning) {
@@ -210,7 +213,6 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bg = SharedPrefHelper.getBackgroundImage();
     final h = _remaining.inHours.toString().padLeft(2, '0');
     final m = _remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = _remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
@@ -218,7 +220,7 @@ class _TimerScreenState extends State<TimerScreen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (bg != null) Image.asset(bg, fit: BoxFit.cover),
+        if (bg != null) Image.asset(bg!, fit: BoxFit.cover),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -231,7 +233,16 @@ class _TimerScreenState extends State<TimerScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsScreen()),
+                  ).then((_) {
+                    setState(() {
+                      bg = SharedPrefHelper.getBackgroundImage();
+                    });
+                  });
+                },
               ),
             ],
           ),
@@ -283,7 +294,7 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   void dispose() {
-    TimerHelper.pause(); // ensure no lingering timer
+    TimerHelper.pause();
     super.dispose();
   }
 }

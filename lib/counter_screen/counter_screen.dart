@@ -65,7 +65,12 @@ class _CounterScreenState extends State<CounterScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => SettingsScreen()),
-                    );
+                    ).then((_) {
+                      setState(() {
+                        _backgroundImage =
+                            SharedPrefHelper.getBackgroundImage();
+                      });
+                    });
                   },
                 ),
               ],
