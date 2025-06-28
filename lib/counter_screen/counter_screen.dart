@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maala_app/services/vibration_service.dart';
 import 'package:maala_app/settings_screen/settings_screen.dart';
 import '../services/shared_pref_helper.dart';
 
@@ -28,6 +29,11 @@ class _CounterScreenState extends State<CounterScreen> {
     }
     setState(() => _count = value);
     SharedPrefHelper.setCounter(_count);
+    if (value == 108) {
+      VibrationService.vibrate(durationMs: 100);
+    } else {
+      VibrationService.vibrate();
+    }
   }
 
   @override

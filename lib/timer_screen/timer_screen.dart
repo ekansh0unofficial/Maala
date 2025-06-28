@@ -1,4 +1,3 @@
-// lib/screens/timer_screen.dart
 import 'package:flutter/material.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
 import '../services/shared_pref_helper.dart';
@@ -17,29 +16,41 @@ class _TimerScreenState extends State<TimerScreen> {
   @override
   void initState() {
     super.initState();
-    TimerHelper.initialize(() {
-      setState(() {
-        _remaining = TimerHelper.remaining;
-        if (_remaining.inSeconds == 0) _isRunning = false;
-      });
-    });
+
+    _isRunning = SharedPrefHelper.getTimerRunning();
+    TimerHelper.initialize(_updateRemaining);
+
+    if (_isRunning) {
+      TimerHelper.start();
+    }
+
     _remaining = TimerHelper.remaining;
   }
 
+  void _updateRemaining() {
+    if (!mounted) return;
+    setState(() {
+      _remaining = TimerHelper.remaining;
+    });
+  }
+
   void _startTimer() {
-    if (_remaining != Duration.zero) {
+    if (_remaining > Duration.zero) {
       TimerHelper.start();
+      SharedPrefHelper.setTimerRunning(true);
       setState(() => _isRunning = true);
     }
   }
 
   void _pauseTimer() {
     TimerHelper.pause();
+    SharedPrefHelper.setTimerRunning(false);
     setState(() => _isRunning = false);
   }
 
   void _resetTimer() {
     TimerHelper.reset();
+    SharedPrefHelper.setTimerRunning(false);
     setState(() {
       _isRunning = false;
       _remaining = TimerHelper.remaining;
@@ -47,9 +58,7 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _showTimePickerDialog() {
-    int hour = 0;
-    int minute = 0;
-    int second = 0;
+    int hour = 0, minute = 0, second = 0;
 
     showDialog(
       context: context,
@@ -84,7 +93,7 @@ class _TimerScreenState extends State<TimerScreen> {
                       onPressed: () {
                         Navigator.pop(context);
                         TimerHelper.updateDuration(hour, minute, second);
-                        setState(() => _remaining = TimerHelper.remaining);
+                        _updateRemaining();
                       },
                       child: const Text(
                         "Set",
@@ -177,6 +186,28 @@ class _TimerScreenState extends State<TimerScreen> {
     );
   }
 
+  Widget customButton(IconData icon, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color.fromARGB(127, 67, 66, 66),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withOpacity(0.2),
+              blurRadius: 8,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Icon(icon, size: 28, color: Colors.white),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bg = SharedPrefHelper.getBackgroundImage();
@@ -250,25 +281,9 @@ class _TimerScreenState extends State<TimerScreen> {
     );
   }
 
-  Widget customButton(IconData icon, Function() onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: const Color.fromARGB(127, 67, 66, 66),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white.withOpacity(0.2),
-              blurRadius: 8,
-              spreadRadius: 1,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Icon(icon, size: 28, color: Colors.white),
-      ),
-    );
+  @override
+  void dispose() {
+    TimerHelper.pause(); // ensure no lingering timer
+    super.dispose();
   }
 }
