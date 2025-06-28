@@ -1,17 +1,20 @@
 package com.example.maala_app
 
 import android.os.*
+import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "maala/haptic"
+    private val HAPTIC_CHANNEL = "maala/haptic"
+    private val SCREEN_CHANNEL = "maala/screen"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, _ ->
+        // Haptic feedback channel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, HAPTIC_CHANNEL).setMethodCallHandler { call, _ ->
             if (call.method == "vibrate") {
                 val duration = call.argument<Int>("duration") ?: 30
 
@@ -33,6 +36,18 @@ class MainActivity : FlutterActivity() {
                 } else {
                     @Suppress("DEPRECATION")
                     vibrator.vibrate(duration.toLong())
+                }
+            }
+        }
+
+        // Keep screen on channel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SCREEN_CHANNEL).setMethodCallHandler { call, _ ->
+            when (call.method) {
+                "enableScreenOn" -> {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+                "disableScreenOn" -> {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
             }
         }

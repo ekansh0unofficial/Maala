@@ -9,6 +9,8 @@ class VibrationService {
 
     try {
       await _channel.invokeMethod('vibrate', {'duration': durationMs});
-    } catch (_) {}
+    } catch (e) {
+      print("Haptic Feedback not Working");
+    }
   }
 }

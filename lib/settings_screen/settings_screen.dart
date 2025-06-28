@@ -1,5 +1,6 @@
 // lib/screens/settings_screen.dart
 import 'package:flutter/material.dart';
+import 'package:maala_app/services/screen_awake_service.dart';
 import '../services/shared_pref_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -18,9 +19,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SharedPrefHelper.setHapticEnabled(value);
   }
 
-  void _toggleKeepScreenOn(bool value) {
+  Future<void> _toggleKeepScreenOn(bool value) async {
     setState(() => _keepScreenOn = value);
     SharedPrefHelper.setKeepScreenOn(value);
+
+    if (value) {
+      await ScreenAwakeService.enable();
+    } else {
+      await ScreenAwakeService.disable();
+    }
   }
 
   @override

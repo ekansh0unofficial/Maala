@@ -29,7 +29,7 @@ class _CounterScreenState extends State<CounterScreen> {
     }
     setState(() => _count = value);
     SharedPrefHelper.setCounter(_count);
-    if (value == 108) {
+    if (value == _countLimit!) {
       VibrationService.vibrate(durationMs: 100);
     } else {
       VibrationService.vibrate();
