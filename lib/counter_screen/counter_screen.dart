@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:maala_app/services/vibration_service.dart';
 import 'package:maala_app/settings_screen/settings_screen.dart';
@@ -29,6 +30,7 @@ class _CounterScreenState extends State<CounterScreen> {
     }
     setState(() => _count = value);
     SharedPrefHelper.setCounter(_count);
+
     if (value == _countLimit!) {
       VibrationService.vibrate(durationMs: 100);
     } else {
@@ -38,11 +40,18 @@ class _CounterScreenState extends State<CounterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Widget? background;
+    if (_backgroundImage != null) {
+      background =
+          _backgroundImage!.startsWith('assets/')
+              ? Image.asset(_backgroundImage!, fit: BoxFit.cover)
+              : Image.file(File(_backgroundImage!), fit: BoxFit.cover);
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (_backgroundImage != null)
-          Image.asset(_backgroundImage!, fit: BoxFit.cover),
+        if (background != null) background,
         GestureDetector(
           onTap: () => _updateCounter(_count + 1),
           child: Scaffold(
@@ -61,15 +70,15 @@ class _CounterScreenState extends State<CounterScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SettingsScreen()),
-                    ).then((_) {
-                      setState(() {
-                        _backgroundImage =
-                            SharedPrefHelper.getBackgroundImage();
-                      });
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsScreen(),
+                      ),
+                    );
+                    setState(() {
+                      _backgroundImage = SharedPrefHelper.getBackgroundImage();
                     });
                   },
                 ),

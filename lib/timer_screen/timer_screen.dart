@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:maala_app/settings_screen/settings_screen.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
@@ -217,10 +219,18 @@ class _TimerScreenState extends State<TimerScreen> {
     final m = _remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = _remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
 
+    Widget? background;
+    if (bg != null) {
+      background =
+          bg!.startsWith('assets/')
+              ? Image.asset(bg!, fit: BoxFit.cover)
+              : Image.file(File(bg!), fit: BoxFit.cover);
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (bg != null) Image.asset(bg!, fit: BoxFit.cover),
+        if (background != null) background,
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -233,14 +243,15 @@ class _TimerScreenState extends State<TimerScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SettingsScreen()),
-                  ).then((_) {
-                    setState(() {
-                      bg = SharedPrefHelper.getBackgroundImage();
-                    });
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                  setState(() {
+                    bg = SharedPrefHelper.getBackgroundImage();
                   });
                 },
               ),

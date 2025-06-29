@@ -9,9 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences:  
-  palette_generator: 
+  shared_preferences:   
   google_nav_bar:
+  image_picker: 
+  path_provider: 
+  path:
+  permission_handler:
 
 dev_dependencies:
   flutter_test:

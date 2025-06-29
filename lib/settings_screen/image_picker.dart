@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../services/shared_pref_helper.dart';
+import '../services/image_picker_helper.dart';
 
 class BackgroundPickerDialog extends StatefulWidget {
   const BackgroundPickerDialog({super.key});
@@ -9,12 +11,23 @@ class BackgroundPickerDialog extends StatefulWidget {
 }
 
 class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
-  final List<String> imageAssets = List.generate(
-    5,
-    (index) => 'assets/images/${index + 1}.jpg',
-  );
+  late List<String> imageAssets;
+
+  @override
+  void initState() {
+    super.initState();
+    imageAssets = List.generate(5, (index) => 'assets/images/${index + 1}.jpg');
+    imageAssets.add('GALLERY');
+  }
 
   String? _previewImage;
+
+  Future<void> _customPicker() async {
+    final newImagePath = await ImagePickerHelper.pickAndReturnBGI(context);
+    if (newImagePath != null) {
+      setState(() => _previewImage = newImagePath);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,13 +48,33 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
                   itemCount: imageAssets.length,
                   itemBuilder: (context, index) {
                     final img = imageAssets[index];
-                    return GestureDetector(
-                      onTap: () => setState(() => _previewImage = img),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(img, fit: BoxFit.cover),
-                      ),
-                    );
+                    if (img == 'GALLERY') {
+                      return GestureDetector(
+                        onTap: _customPicker,
+                        child: GridTile(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.add_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      return GestureDetector(
+                        onTap: () => setState(() => _previewImage = img),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(img, fit: BoxFit.cover),
+                        ),
+                      );
+                    }
                   },
                 )
                 : Column(
@@ -49,11 +82,18 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        _previewImage!,
-                        fit: BoxFit.cover,
-                        height: 200,
-                      ),
+                      child:
+                          _previewImage!.startsWith('assets/')
+                              ? Image.asset(
+                                _previewImage!,
+                                fit: BoxFit.cover,
+                                height: 200,
+                              )
+                              : Image.file(
+                                File(_previewImage!),
+                                fit: BoxFit.cover,
+                                height: 200,
+                              ),
                     ),
                     const SizedBox(height: 16),
                     Row(
