@@ -197,15 +197,7 @@ class _TimerScreenState extends State<TimerScreen> {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: const Color.fromARGB(127, 67, 66, 66),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white.withOpacity(0.2),
-              blurRadius: 8,
-              spreadRadius: 1,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: const Color.fromARGB(139, 56, 56, 56),
         ),
         padding: const EdgeInsets.all(12),
         child: Icon(icon, size: 28, color: Colors.white),
@@ -263,25 +255,25 @@ class _TimerScreenState extends State<TimerScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 64),
-                  _buildTimeBox(h),
-                  _buildTimeBox(m),
-                  _buildTimeBox(s),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(
-                        Colors.black.withAlpha(50),
+                  GestureDetector(
+                    onTap: _showTimePickerDialog,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(120, 203, 203, 203),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      foregroundColor: WidgetStatePropertyAll(Colors.white),
-                    ),
-                    onPressed: _showTimePickerDialog,
-                    icon: const Icon(
-                      Icons.refresh,
-                      color: Colors.white70,
-                      size: 28,
+                      margin: EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          _buildTimeBox(h),
+                          _buildTimeBox(m),
+                          _buildTimeBox(s),
+                        ],
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 12),
                 ],
               ),
               const SizedBox(height: 36),
