@@ -259,7 +259,7 @@ class _TimerScreenState extends State<TimerScreen> {
                     onTap: _showTimePickerDialog,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(120, 203, 203, 203),
+                        color: const Color.fromARGB(120, 149, 148, 148),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       margin: EdgeInsets.all(12),

@@ -79,6 +79,8 @@ class _CounterScreenState extends State<CounterScreen> {
                     );
                     setState(() {
                       _backgroundImage = SharedPrefHelper.getBackgroundImage();
+                      _countLimit = SharedPrefHelper.getCountLimit();
+                      _updateCounter(_count);
                     });
                   },
                 ),
