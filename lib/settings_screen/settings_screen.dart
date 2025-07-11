@@ -107,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(color: Colors.white),
             ),
             subtitle: const Text(
-              "Number of taps before reset or vibration.",
+              "Number of taps before reset",
               style: TextStyle(color: Colors.white60, fontSize: 12),
             ),
             tileColor: const Color.fromARGB(96, 158, 158, 158),

@@ -16,6 +16,8 @@ class SharedPrefHelper {
 
   static const _backgroundKey = 'selected_background';
 
+  static const _selectedSoundKey = 'selected_sound';
+
   /// Call this once in app initialization or first screen
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -49,6 +51,12 @@ class SharedPrefHelper {
       _prefs.getString(_backgroundKey) ?? 'assets/images/1.jpg';
   static void setBackgroundImage(String path) =>
       _prefs.setString(_backgroundKey, path);
+
+  //Background Music
+  static String getSelectedSound() =>
+      _prefs.getString(_selectedSoundKey) ?? 'assets/audios/default.mp3';
+  static void setSelectedSound(String path) =>
+      _prefs.setString(_selectedSoundKey, path);
 
   // Keep screen on
   static bool getKeepScreenOn() => _prefs.getBool(_screenOnKey) ?? false;
