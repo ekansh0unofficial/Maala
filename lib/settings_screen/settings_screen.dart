@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
 import 'package:maala_app/settings_screen/image_picker.dart';
+import 'package:maala_app/settings_screen/sound_picker.dart';
 import '../services/shared_pref_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -59,89 +60,128 @@ class _SettingsScreenState extends State<SettingsScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildToggleTile(
-            title: 'Enable Haptic Feedback',
-            value: _hapticEnabled,
-            onChanged: (val) {
-              setState(() => _hapticEnabled = val);
-              SharedPrefHelper.setHapticEnabled(val);
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildToggleTile(
-            title: 'Keep Screen On',
-            value: _keepScreenOn,
-            onChanged: (val) async {
-              setState(() => _keepScreenOn = val);
-              SharedPrefHelper.setKeepScreenOn(val);
-              val
-                  ? await ScreenAwakeService.enable()
-                  : await ScreenAwakeService.disable();
-            },
-          ),
-          const Divider(height: 32, color: Colors.white24),
-          ListTile(
-            tileColor: const Color.fromARGB(96, 158, 158, 158),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+      body: Listener(
+        onPointerDown: (_) => FocusScope.of(context).unfocus(),
+
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _buildToggleTile(
+              title: 'Enable Haptic Feedback',
+              value: _hapticEnabled,
+              onChanged: (val) {
+                setState(() => _hapticEnabled = val);
+                SharedPrefHelper.setHapticEnabled(val);
+              },
             ),
-            title: const Text(
-              'Background Image',
-              style: TextStyle(color: Colors.white),
+            const SizedBox(height: 12),
+            _buildToggleTile(
+              title: 'Keep Screen On',
+              value: _keepScreenOn,
+              onChanged: (val) async {
+                setState(() => _keepScreenOn = val);
+                SharedPrefHelper.setKeepScreenOn(val);
+                val
+                    ? await ScreenAwakeService.enable()
+                    : await ScreenAwakeService.disable();
+              },
             ),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => const BackgroundPickerDialog(),
-              ).then((_) => setState(() {}));
-            },
-          ),
-          const SizedBox(height: 12),
-          ListTile(
-            title: const Text(
-              "Counter Limit",
-              style: TextStyle(color: Colors.white),
-            ),
-            subtitle: const Text(
-              "Number of taps before reset",
-              style: TextStyle(color: Colors.white60, fontSize: 12),
-            ),
-            tileColor: const Color.fromARGB(96, 158, 158, 158),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            trailing: SizedBox(
-              width: 70,
-              child: TextField(
-                controller: _countLimitController,
-                keyboardType: TextInputType.number,
-                style: const TextStyle(color: Colors.white),
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  isDense: true,
-                  filled: true,
-                  fillColor: Colors.white12,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white),
-                  ),
+            const Divider(height: 32, color: Colors.white24),
+
+            ListTile(
+              tileColor: const Color.fromARGB(96, 158, 158, 158),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 16, 8, 16),
+                child: const Text(
+                  'Background Image',
+                  style: TextStyle(color: Colors.white),
                 ),
-                onSubmitted: _saveCountLimit,
-                onEditingComplete:
-                    () => _saveCountLimit(_countLimitController.text),
+              ),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+              ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const BackgroundPickerDialog(),
+                ).then((_) => setState(() {}));
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            ListTile(
+              tileColor: const Color.fromARGB(96, 158, 158, 158),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              title: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 16, 8, 16),
+                child: const Text(
+                  'Soundtrack',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+              ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const SoundPickerDialog(),
+                ).then((_) => setState(() {}));
+              },
+            ),
+
+            const Divider(height: 32, color: Colors.white24),
+
+            ListTile(
+              title: const Text(
+                "Counter Limit",
+                style: TextStyle(color: Colors.white),
+              ),
+              subtitle: const Text(
+                "Number of taps before reset",
+                style: TextStyle(color: Colors.white60, fontSize: 12),
+              ),
+              tileColor: const Color.fromARGB(96, 158, 158, 158),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              trailing: SizedBox(
+                width: 70,
+                child: TextField(
+                  controller: _countLimitController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    isDense: true,
+                    filled: true,
+                    fillColor: Colors.white12,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Colors.white24),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                  ),
+                  onSubmitted: _saveCountLimit,
+                  onEditingComplete:
+                      () => _saveCountLimit(_countLimitController.text),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

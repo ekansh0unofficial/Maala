@@ -64,7 +64,7 @@ class _TimerScreenState extends State<TimerScreen> {
 
   void _showTimePickerDialog() {
     int hour = 0, minute = 0, second = 0;
-
+    _pauseTimer();
     showDialog(
       context: context,
       barrierDismissible: true,

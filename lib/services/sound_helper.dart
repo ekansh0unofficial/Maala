@@ -35,4 +35,12 @@ class SoundHelper {
   }
 
   static bool get isPlaying => _isPlaying;
+
+  static Future<void> dispose() async {
+    try {
+      await _player.dispose();
+    } catch (e) {
+      print("SoundHelper dispose error: $e");
+    }
+  }
 }
