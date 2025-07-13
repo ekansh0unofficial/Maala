@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:maala_app/services/sound_helper.dart';
 import 'package:maala_app/settings_screen/settings_screen.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
 import '../services/shared_pref_helper.dart';
@@ -233,6 +234,24 @@ class _TimerScreenState extends State<TimerScreen> {
             backgroundColor: Colors.black.withOpacity(0.3),
             elevation: 0,
             actions: [
+              IconButton(
+                icon: Icon(
+                  SoundHelper.isPlaying
+                      ? Icons.pause_circle
+                      : Icons.play_circle,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                onPressed: () async {
+                  if (SoundHelper.isPlaying) {
+                    await SoundHelper.pause();
+                  } else {
+                    await SoundHelper.play();
+                  }
+                  setState(() {});
+                },
+              ),
+
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
                 onPressed: () async {

@@ -7,40 +7,28 @@ class SoundHelper {
 
   static Future<void> play() async {
     try {
-      final assetPath = SharedPrefHelper.getSelectedSound();
+      final path = SharedPrefHelper.getSelectedSound();
+      print("Selected Path: $path");
+      if (path.isEmpty) return;
       await _player.setReleaseMode(ReleaseMode.loop);
-      await _player.play(AssetSource(assetPath));
+      await _player.play(AssetSource(path));
       _isPlaying = true;
-    } catch (e) {
-      print("SoundHelper error while playing: $e");
-    }
+    } catch (_) {}
   }
 
   static Future<void> pause() async {
     try {
       await _player.pause();
       _isPlaying = false;
-    } catch (e) {
-      print("SoundHelper error while pausing: $e");
-    }
+    } catch (_) {}
   }
 
   static Future<void> stop() async {
     try {
       await _player.stop();
       _isPlaying = false;
-    } catch (e) {
-      print("SoundHelper error while stopping: $e");
-    }
+    } catch (_) {}
   }
 
   static bool get isPlaying => _isPlaying;
-
-  static Future<void> dispose() async {
-    try {
-      await _player.dispose();
-    } catch (e) {
-      print("SoundHelper dispose error: $e");
-    }
-  }
 }

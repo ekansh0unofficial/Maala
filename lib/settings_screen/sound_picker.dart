@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../services/shared_pref_helper.dart';
 
 class SoundPickerDialog extends StatefulWidget {
@@ -9,16 +10,34 @@ class SoundPickerDialog extends StatefulWidget {
 }
 
 class _SoundPickerDialogState extends State<SoundPickerDialog> {
-  final List<String> sounds = List.generate(
-    3,
-    (i) => 'assets/audio/${i + 1}.mp3',
-  );
+  final List<String> sounds = List.generate(3, (i) => 'audio/${i + 1}.mp3');
   String? _selected;
+  String? _previewing; // currently playing track path
+  final AudioPlayer _player = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
     _selected = SharedPrefHelper.getSelectedSound();
+    _player.setReleaseMode(ReleaseMode.loop);
+  }
+
+  @override
+  void dispose() {
+    _player.stop();
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _togglePreview(String path) async {
+    if (_previewing == path) {
+      await _player.stop();
+      setState(() => _previewing = null);
+    } else {
+      await _player.stop();
+      await _player.play(AssetSource(path));
+      setState(() => _previewing = path);
+    }
   }
 
   @override
@@ -39,16 +58,21 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
             ...sounds.map((soundPath) {
               final index = sounds.indexOf(soundPath) + 1;
               final isSelected = _selected == soundPath;
+              final isPlaying = _previewing == soundPath;
+
               return Padding(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 child: ListTile(
                   tileColor: isSelected ? Colors.white24 : Colors.white10,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  leading: Icon(
-                    Icons.music_note,
-                    color: isSelected ? Colors.amber : Colors.white,
+                  leading: IconButton(
+                    icon: Icon(
+                      isPlaying ? Icons.stop_circle : Icons.play_circle,
+                      color: isPlaying ? Colors.redAccent : Colors.white,
+                    ),
+                    onPressed: () => _togglePreview(soundPath),
                   ),
                   title: Text(
                     "Track $index",
