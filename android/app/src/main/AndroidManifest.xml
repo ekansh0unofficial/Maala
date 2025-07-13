@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
-        android:label="maala_app"
+        android:label="Maala"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
