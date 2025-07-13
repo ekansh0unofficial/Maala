@@ -54,7 +54,7 @@ class SharedPrefHelper {
 
   //Background Music
   static String getSelectedSound() =>
-      _prefs.getString(_selectedSoundKey) ?? 'assets/audios/default.mp3';
+      _prefs.getString(_selectedSoundKey) ?? 'assets/audios/1.mp3';
   static void setSelectedSound(String path) =>
       _prefs.setString(_selectedSoundKey, path);
 

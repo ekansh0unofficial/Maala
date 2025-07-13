@@ -50,12 +50,14 @@ class _TimerScreenState extends State<TimerScreen> {
 
   void _pauseTimer() {
     TimerHelper.pause();
+    SoundHelper.pause();
     SharedPrefHelper.setTimerRunning(false);
     setState(() => _isRunning = false);
   }
 
   void _resetTimer() {
     TimerHelper.reset();
+    SoundHelper.stop();
     SharedPrefHelper.setTimerRunning(false);
     setState(() {
       _isRunning = false;
@@ -66,6 +68,7 @@ class _TimerScreenState extends State<TimerScreen> {
   void _showTimePickerDialog() {
     int hour = 0, minute = 0, second = 0;
     _pauseTimer();
+
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -237,21 +240,23 @@ class _TimerScreenState extends State<TimerScreen> {
               IconButton(
                 icon: Icon(
                   SoundHelper.isPlaying
-                      ? Icons.pause_circle
-                      : Icons.play_circle,
-                  color: Colors.white,
+                      ? Icons.music_off_rounded
+                      : Icons.music_note,
+                  color: _isRunning ? Colors.white : Colors.white24,
                   size: 28,
                 ),
-                onPressed: () async {
-                  if (SoundHelper.isPlaying) {
-                    await SoundHelper.pause();
-                  } else {
-                    await SoundHelper.play();
-                  }
-                  setState(() {});
-                },
+                onPressed:
+                    !_isRunning
+                        ? null
+                        : () async {
+                          if (SoundHelper.isPlaying) {
+                            await SoundHelper.pause();
+                          } else {
+                            await SoundHelper.play();
+                          }
+                          setState(() {});
+                        },
               ),
-
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
                 onPressed: () async {
@@ -281,8 +286,8 @@ class _TimerScreenState extends State<TimerScreen> {
                         color: const Color.fromARGB(120, 149, 148, 148),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      margin: EdgeInsets.all(12),
-                      padding: EdgeInsets.all(12),
+                      margin: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
                           _buildTimeBox(h),
@@ -292,7 +297,6 @@ class _TimerScreenState extends State<TimerScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
                 ],
               ),
               const SizedBox(height: 36),
@@ -317,6 +321,7 @@ class _TimerScreenState extends State<TimerScreen> {
   @override
   void dispose() {
     TimerHelper.pause();
+    SoundHelper.pause();
     super.dispose();
   }
 }
