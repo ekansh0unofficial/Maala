@@ -19,6 +19,10 @@ class _CounterScreenState extends State<CounterScreen> {
   @override
   void initState() {
     super.initState();
+    _loadCounterState();
+  }
+
+  void _loadCounterState() {
     _count = SharedPrefHelper.getCounter();
     _backgroundImage = SharedPrefHelper.getBackgroundImage();
     _countLimit = SharedPrefHelper.getCountLimit() ?? 108;
@@ -79,8 +83,8 @@ class _CounterScreenState extends State<CounterScreen> {
                     );
                     setState(() {
                       _backgroundImage = SharedPrefHelper.getBackgroundImage();
-                      _countLimit = SharedPrefHelper.getCountLimit();
-                      _updateCounter(_count);
+                      _countLimit = SharedPrefHelper.getCountLimit() ?? 108;
+                      _count = SharedPrefHelper.getCounter();
                     });
                   },
                 ),
