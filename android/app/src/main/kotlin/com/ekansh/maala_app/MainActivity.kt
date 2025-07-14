@@ -1,4 +1,4 @@
-package com.example.maala_app
+package com.ekansh.maala_app
 
 import android.os.*
 import android.view.WindowManager
