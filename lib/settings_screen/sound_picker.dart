@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/shared_pref_helper.dart';
+import '../services/theme_service.dart';
 import '../theme/app_theme.dart';
-import '../themes/meditation_themes.dart';
 
 class SoundPickerDialog extends StatefulWidget {
   const SoundPickerDialog({super.key});
@@ -55,7 +55,7 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = meditationThemes[SharedPrefHelper.getThemeIndex()];
+    final theme = ThemeService.current;
     return Dialog(
       backgroundColor: theme.surface,
       shape: RoundedRectangleBorder(

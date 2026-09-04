@@ -18,6 +18,7 @@ dependencies:
   shared_preferences: ^2.5.3
   intl: any
   google_fonts: ^6.2.1
+  image_color_scheme: ^1.0.5
 
 dev_dependencies:
   flutter_test:

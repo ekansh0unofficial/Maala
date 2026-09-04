@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/image_picker_helper.dart';
-import '../services/shared_pref_helper.dart';
+import '../services/theme_service.dart';
 import '../theme/app_theme.dart';
-import '../themes/meditation_themes.dart';
 import '../widgets/background_image.dart';
 
 class BackgroundPickerDialog extends StatefulWidget {
@@ -35,7 +34,7 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = meditationThemes[SharedPrefHelper.getThemeIndex()];
+    final theme = ThemeService.current;
     return Dialog(
       backgroundColor: theme.surface,
       shape: RoundedRectangleBorder(
@@ -134,7 +133,7 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
                               Navigator.pop(context);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.primaryAccent,
+                              backgroundColor: theme.surfaceElevated,
                               foregroundColor: AppColors.textPrimary,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -146,6 +145,7 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
                             child: Text(
                               'Set as Background',
                               style: GoogleFonts.inter(
+                                color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

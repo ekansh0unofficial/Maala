@@ -285,6 +285,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.4"
+  image_color_scheme:
+    dependency: "direct main"
+    description:
+      name: image_color_scheme
+      sha256: "4ced566b2c0e27a8ef70f737cabe80b4aed5f8aeae33e2fe97c82494ac247d82"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   image_picker:
     dependency: "direct main"
     description:

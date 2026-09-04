@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'shared_pref_helper.dart';
+import 'theme_service.dart';
 
 class ImagePickerHelper {
   static final _picker = ImagePicker();
@@ -55,5 +56,8 @@ class ImagePickerHelper {
         debugPrint('Failed to delete old background image: $e');
       }
     }
+
+    // Re-derive the theme from the newly selected background image.
+    await ThemeService.initFromBackground();
   }
 }

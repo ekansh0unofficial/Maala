@@ -4,10 +4,12 @@ import 'package:maala_app/home.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
 import 'package:maala_app/services/shared_pref_helper.dart';
+import 'package:maala_app/services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefHelper.init();
+  await ThemeService.initFromBackground();
   if (SharedPrefHelper.getKeepScreenOn()) {
     await ScreenAwakeService.enable();
   }

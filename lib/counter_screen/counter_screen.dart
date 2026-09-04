@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/sound_helper.dart';
+import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/services/vibration_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
-import 'package:maala_app/themes/meditation_themes.dart';
+import 'package:maala_app/widgets/background_image.dart';
 import 'package:maala_app/widgets/daily_quote.dart';
 import 'package:maala_app/widgets/mala_complete_overlay.dart';
 import '../services/shared_pref_helper.dart';
@@ -27,7 +28,10 @@ class _CounterScreenState extends State<CounterScreen> {
   String _mantraText = 'ॐ';
   bool _showCompletionOverlay = false;
   bool _focusMode = false;
-  int _themeIndex = 0;
+
+  /// Set while a modal dialog/bottom-sheet is open so we never register a
+  /// stray tap (e.g. from the on-screen keyboard) as a counter increment.
+  bool _dialogOpen = false;
 
   static const List<Map<String, String>> _mantras = [
     {'text': 'ॐ', 'label': 'Om'},
@@ -59,10 +63,10 @@ class _CounterScreenState extends State<CounterScreen> {
     _streak = SharedPrefHelper.getStreak();
     _mantraText = SharedPrefHelper.getMantraText();
     _focusMode = SharedPrefHelper.getFocusMode();
-    _themeIndex = SharedPrefHelper.getThemeIndex();
   }
 
   void _updateCounter(int value) {
+    if (_dialogOpen) return;
     if (value > _countLimit) {
       value = 0;
       _sessionMalas++;
@@ -167,7 +171,8 @@ class _CounterScreenState extends State<CounterScreen> {
   }
 
   void _showMantraPicker() {
-    final theme = meditationThemes[_themeIndex];
+    _dialogOpen = true;
+    final theme = ThemeService.current;
     showModalBottomSheet(
       context: context,
       backgroundColor: theme.surface,
@@ -255,14 +260,20 @@ class _CounterScreenState extends State<CounterScreen> {
               ],
             ),
           ),
-    );
+    ).then((_) {
+      _dialogOpen = false;
+    });
   }
 
   void _showCustomMantraDialog() {
+    _dialogOpen = true;
     final controller = TextEditingController(text: _mantraText);
-    final theme = meditationThemes[_themeIndex];
+    final theme = ThemeService.current;
     showDialog(
       context: context,
+      // Prevent an accidental outside/keyboard tap from dismissing the dialog
+      // (which would then be swallowed by the counter's tap handler).
+      barrierDismissible: false,
       builder:
           (context) => Dialog(
             backgroundColor: theme.surface,
@@ -285,6 +296,9 @@ class _CounterScreenState extends State<CounterScreen> {
                   const SizedBox(height: 20),
                   TextField(
                     controller: controller,
+                    autofocus: true,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => FocusScope.of(context).unfocus(),
                     style: GoogleFonts.inter(
                       color: AppColors.textPrimary,
                       fontSize: 20,
@@ -343,7 +357,9 @@ class _CounterScreenState extends State<CounterScreen> {
               ),
             ),
           ),
-    );
+    ).then((_) {
+      _dialogOpen = false;
+    });
   }
 
   Future<void> _confirmAndResetCounter() async {
@@ -352,7 +368,7 @@ class _CounterScreenState extends State<CounterScreen> {
     // way to undo it. Now it requires an explicit confirmation.
     if (_count == 0 && _sessionMalas == 0) return;
 
-    final theme = meditationThemes[_themeIndex];
+    final theme = ThemeService.current;
     final confirmed = await showDialog<bool>(
       context: context,
       builder:
@@ -420,13 +436,17 @@ class _CounterScreenState extends State<CounterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = meditationThemes[_themeIndex];
+    final theme = ThemeService.current;
+    final background = SharedPrefHelper.getBackgroundImage();
 
     return Stack(
       fit: StackFit.expand,
       children: [
+        if (background != null) BackgroundImage(path: background),
+        // Scrim keeps text/icons readable over the full-bleed image.
+        Container(color: theme.overlayColor),
         Scaffold(
-          backgroundColor: theme.background,
+          backgroundColor: Colors.transparent,
           appBar:
               _focusMode
                   ? null
@@ -638,6 +658,9 @@ class _CounterScreenState extends State<CounterScreen> {
           MalaCompleteOverlay(
             malasCount: _sessionMalas,
             countLimit: _countLimit,
+            theme: theme,
+            streak: _streak,
+            onDismiss: () => setState(() => _showCompletionOverlay = false),
           ),
       ],
     );

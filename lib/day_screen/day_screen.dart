@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/shared_pref_helper.dart';
+import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 
@@ -18,7 +19,6 @@ class _DayScreenState extends State<DayScreen> {
   int _todayMalas = 0;
   int _totalMalas = 0;
   int _totalChants = 0;
-  int _themeIndex = 0;
 
   @override
   void initState() {
@@ -37,13 +37,12 @@ class _DayScreenState extends State<DayScreen> {
       _todayMalas = SharedPrefHelper.getTodayMalas();
       _totalMalas = SharedPrefHelper.getTotalMalas();
       _totalChants = SharedPrefHelper.getTotalChants();
-      _themeIndex = SharedPrefHelper.getThemeIndex();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = meditationThemes[_themeIndex];
+    final theme = ThemeService.current;
     return Container(
       color: theme.background,
       child: SafeArea(

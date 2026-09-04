@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/sound_helper.dart';
+import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
+import 'package:maala_app/widgets/background_image.dart';
 import '../services/shared_pref_helper.dart';
 
 class TimerScreen extends StatefulWidget {
@@ -17,12 +19,10 @@ class TimerScreen extends StatefulWidget {
 class _TimerScreenState extends State<TimerScreen> {
   bool _isRunning = false;
   Duration _remaining = const Duration();
-  int _themeIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _themeIndex = SharedPrefHelper.getThemeIndex();
     TimerHelper.initialize(_updateRemaining);
     _isRunning = TimerHelper.isRunning;
     _remaining = TimerHelper.remaining;
@@ -68,14 +68,21 @@ class _TimerScreenState extends State<TimerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = meditationThemes[_themeIndex];
+    final theme = ThemeService.current;
+    final background = SharedPrefHelper.getBackgroundImage();
 
     final h = _remaining.inHours.toString().padLeft(2, '0');
     final m = _remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
     final s = _remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
 
-    return Scaffold(
-      backgroundColor: theme.background,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (background != null) BackgroundImage(path: background),
+        // Scrim keeps text/icons readable over the full-bleed image.
+        Container(color: theme.overlayColor),
+        Scaffold(
+          backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           AppLocalizations.translate('meditate'),
@@ -178,6 +185,8 @@ class _TimerScreenState extends State<TimerScreen> {
           ],
         ),
       ),
+    ),
+      ],
     );
   }
 
@@ -241,7 +250,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
     int hour = widget.initial.inHours.clamp(0, 23);
     int minute = widget.initial.inMinutes.remainder(60);
     int second = widget.initial.inSeconds.remainder(60);
-    final theme = meditationThemes[SharedPrefHelper.getThemeIndex()];
+    final theme = ThemeService.current;
 
     return Dialog(
       backgroundColor: theme.surface,

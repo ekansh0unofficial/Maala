@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/counter_screen/counter_screen.dart';
 import 'package:maala_app/day_screen/day_screen.dart';
 import 'package:maala_app/services/localization_service.dart';
+import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
+import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/timer_screen/timer_screen.dart';
 import 'package:maala_app/settings_screen/settings_screen.dart';
 
@@ -52,40 +54,43 @@ class _HomeScreenState extends State<HomeScreen> {
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
-    if (isPortrait) {
-      return Scaffold(
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (i) => setState(() => _selectedIndex = i),
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          children: _screens,
-        ),
-        bottomNavigationBar: _BottomNavBar(
-          selectedIndex: _selectedIndex,
-          onTap: _onNavTapped,
-        ),
-      );
-    }
-
-    return Scaffold(
-      body: Row(
-        children: [
-          _SideRail(
-            selectedIndex: _selectedIndex,
-            onTap: _onNavTapped,
-          ),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              scrollDirection: Axis.vertical,
-              onPageChanged: (i) => setState(() => _selectedIndex = i),
-              physics: const BouncingScrollPhysics(),
-              children: _screens,
-            ),
-          ),
-        ],
-      ),
+    return ValueListenableBuilder<MeditationTheme>(
+      valueListenable: ThemeService.themeNotifier,
+      builder: (context, theme, _) {
+        return isPortrait
+            ? Scaffold(
+                body: PageView(
+                  controller: _pageController,
+                  onPageChanged: (i) => setState(() => _selectedIndex = i),
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  children: _screens,
+                ),
+                bottomNavigationBar: _BottomNavBar(
+                  selectedIndex: _selectedIndex,
+                  onTap: _onNavTapped,
+                ),
+              )
+            : Scaffold(
+                body: Row(
+                  children: [
+                    _SideRail(
+                      selectedIndex: _selectedIndex,
+                      onTap: _onNavTapped,
+                    ),
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        scrollDirection: Axis.vertical,
+                        onPageChanged: (i) => setState(() => _selectedIndex = i),
+                        physics: const BouncingScrollPhysics(),
+                        children: _screens,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+      },
     );
   }
 }

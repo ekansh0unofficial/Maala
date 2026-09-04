@@ -4,6 +4,7 @@ import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
 import 'package:maala_app/settings_screen/image_picker.dart';
 import 'package:maala_app/settings_screen/sound_picker.dart';
+import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import '../services/shared_pref_helper.dart';
@@ -20,7 +21,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _keepScreenOn = SharedPrefHelper.getKeepScreenOn();
   bool _focusMode = SharedPrefHelper.getFocusMode();
   late TextEditingController _countLimitController;
-  int _themeIndex = SharedPrefHelper.getThemeIndex();
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-  MeditationTheme get _theme => meditationThemes[_themeIndex];
+  MeditationTheme get _theme => ThemeService.current;
 
   void _saveCountLimit(String value) {
     final trimmed = value.trim();
@@ -130,90 +130,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showThemePicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: _theme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  AppLocalizations.translate('chooseTheme'),
-                  style: GoogleFonts.cormorantGaramond(
-                    color: AppColors.textPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: List.generate(meditationThemes.length, (index) {
-                      final theme = meditationThemes[index];
-                      final isSelected = _themeIndex == index;
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? theme.primaryAccent.withValues(alpha: 0.18)
-                                  : theme.surfaceElevated,
-                          borderRadius: BorderRadius.circular(AppRadii.medium),
-                        ),
-                        child: ListTile(
-                          leading: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: theme.primaryAccent,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          title: Text(
-                            theme.name,
-                            style: GoogleFonts.inter(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          subtitle: Text(
-                            theme.greeting,
-                            style: GoogleFonts.inter(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                          trailing:
-                              isSelected
-                                  ? Icon(
-                                    Icons.check_circle,
-                                    color: theme.primaryAccent,
-                                  )
-                                  : null,
-                          onTap: () {
-                            setState(() => _themeIndex = index);
-                            SharedPrefHelper.setThemeIndex(index);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -278,13 +194,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.language,
               value: AppLocalizations.isHindi ? 'हिन्दी' : 'English',
               onTap: _showLanguagePicker,
-            ),
-            const SizedBox(height: 12),
-            _buildNavTile(
-              title: AppLocalizations.translate('theme'),
-              icon: Icons.palette,
-              value: _theme.name,
-              onTap: _showThemePicker,
             ),
             const SizedBox(height: 12),
             _buildNavTile(
