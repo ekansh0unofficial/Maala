@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../services/shared_pref_helper.dart';
 
@@ -10,7 +11,7 @@ class VibrationService {
     try {
       await _channel.invokeMethod('vibrate', {'duration': durationMs});
     } catch (e) {
-      print("Haptic Feedback not Working");
+      debugPrint('Haptic feedback failed: $e');
     }
   }
 }

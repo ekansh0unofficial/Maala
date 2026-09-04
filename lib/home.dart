@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/counter_screen/counter_screen.dart';
+import 'package:maala_app/day_screen/day_screen.dart';
+import 'package:maala_app/services/localization_service.dart';
+import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/timer_screen/timer_screen.dart';
+import 'package:maala_app/settings_screen/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -14,7 +18,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late PageController _pageController;
 
-  final List<Widget> _screens = const [CounterScreen(), TimerScreen()];
+  final List<Widget> _screens = const [
+    CounterScreen(),
+    TimerScreen(),
+    DayScreen(),
+    SettingsScreen(),
+  ];
 
   @override
   void initState() {
@@ -22,17 +31,20 @@ class _HomeScreenState extends State<HomeScreen> {
     _pageController = PageController(initialPage: _selectedIndex);
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void _onNavTapped(int index) {
+    if (_selectedIndex == index) return;
     setState(() => _selectedIndex = index);
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
-  }
-
-  void _onPageChanged(int index) {
-    setState(() => _selectedIndex = index);
   }
 
   @override
@@ -42,133 +54,201 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (isPortrait) {
       return Scaffold(
-        extendBody: true,
         body: PageView(
           controller: _pageController,
-          onPageChanged: _onPageChanged,
+          onPageChanged: (i) => setState(() => _selectedIndex = i),
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           children: _screens,
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(bottom: 28.0, left: 32.0, right: 32.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4),
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: GNav(
-                gap: 4,
-                color: Colors.white54,
-                activeColor: Colors.white,
-                tabBackgroundColor: Colors.white10,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
-                ),
-                backgroundColor: Colors.transparent,
-                selectedIndex: _selectedIndex,
-                mainAxisAlignment: MainAxisAlignment.center,
-                onTabChange: _onNavTapped,
-                tabs: const [
-                  GButton(
-                    icon: Icons.fingerprint,
-                    iconSize: 28,
-                    text: 'Counter',
-                  ),
-                  GButton(icon: Icons.timer, iconSize: 28, text: 'Timer'),
-                ],
-              ),
-            ),
-          ),
+        bottomNavigationBar: _BottomNavBar(
+          selectedIndex: _selectedIndex,
+          onTap: _onNavTapped,
         ),
       );
     }
 
-    // LANDSCAPE MODE
     return Scaffold(
       body: Row(
         children: [
-          Container(
-            width: 90,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10),
-              ],
-            ),
-            child: Center(
-              child: NavigationRail(
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: _onNavTapped,
-                labelType: NavigationRailLabelType.all,
-                groupAlignment: 0.0,
-                backgroundColor: const Color.fromARGB(169, 0, 0, 0),
-
-                // Circle indicator
-                indicatorColor: const Color.fromARGB(159, 158, 158, 158),
-                indicatorShape: const CircleBorder(),
-
-                selectedIconTheme: const IconThemeData(
-                  color: Colors.white,
-                  size: 28,
-                ),
-                unselectedIconTheme: const IconThemeData(
-                  color: Colors.white60,
-                  size: 24,
-                ),
-                selectedLabelTextStyle: const TextStyle(color: Colors.white),
-                unselectedLabelTextStyle: const TextStyle(
-                  color: Colors.white60,
-                ),
-
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: SizedBox(
-                      height: 48,
-                      width: 48,
-                      child: Center(child: Icon(Icons.fingerprint)),
-                    ),
-                    selectedIcon: SizedBox(
-                      height: 48,
-                      width: 48,
-                      child: Center(child: Icon(Icons.fingerprint)),
-                    ),
-                    label: Text('Counter'),
-                  ),
-                  NavigationRailDestination(
-                    icon: SizedBox(
-                      height: 48,
-                      width: 48,
-                      child: Center(child: Icon(Icons.timer)),
-                    ),
-                    selectedIcon: SizedBox(
-                      height: 48,
-                      width: 48,
-                      child: Center(child: Icon(Icons.timer)),
-                    ),
-                    label: Text('Timer'),
-                  ),
-                ],
-              ),
-            ),
+          _SideRail(
+            selectedIndex: _selectedIndex,
+            onTap: _onNavTapped,
           ),
-          // Vertical PageView
           Expanded(
             child: PageView(
               controller: _pageController,
               scrollDirection: Axis.vertical,
-              onPageChanged: _onPageChanged,
+              onPageChanged: (i) => setState(() => _selectedIndex = i),
               physics: const BouncingScrollPhysics(),
               children: _screens,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BottomNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  const _BottomNavBar({required this.selectedIndex, required this.onTap});
+
+  static const _icons = <IconData>[
+    Icons.spa,
+    Icons.timer,
+    Icons.auto_graph,
+    Icons.tune,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(4, (i) {
+              final selected = selectedIndex == i;
+              final label = [
+                AppLocalizations.translate('counter'),
+                AppLocalizations.translate('timer'),
+                AppLocalizations.translate('day'),
+                AppLocalizations.translate('settings'),
+              ][i];
+              return _NavButton(
+                icon: _icons[i],
+                label: label,
+                selected: selected,
+                onTap: () => onTap(i),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _NavButton({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.saffron.withValues(alpha: 0.16) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 26,
+              color: selected ? AppColors.saffron : AppColors.textSecondary,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? AppColors.textPrimary : AppColors.textTertiary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SideRail extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  const _SideRail({required this.selectedIndex, required this.onTap});
+
+  static const _icons = <IconData>[
+    Icons.spa,
+    Icons.timer,
+    Icons.auto_graph,
+    Icons.tune,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 88,
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(right: BorderSide(color: AppColors.border, width: 0.5)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(4, (i) {
+          final selected = selectedIndex == i;
+          final label = [
+            AppLocalizations.translate('counter'),
+            AppLocalizations.translate('timer'),
+            AppLocalizations.translate('day'),
+            AppLocalizations.translate('settings'),
+          ][i];
+          return GestureDetector(
+            onTap: () => onTap(i),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+              decoration: BoxDecoration(
+                color: selected ? AppColors.saffron.withValues(alpha: 0.14) : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _icons[i],
+                    size: 28,
+                    color: selected ? AppColors.saffron : AppColors.textSecondary,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      color: selected ? AppColors.textPrimary : AppColors.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ),
     );
   }

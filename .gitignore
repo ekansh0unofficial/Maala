@@ -46,3 +46,10 @@ app.*.map.json
 
 android/app/keystore.jks
 android/key.properties
+
+# Encrypted personal backup - never commit
+secure_backup.7z
+*.7z
+
+# Signing artifacts
+*.pem

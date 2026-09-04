@@ -1,12 +1,15 @@
-// lib/screens/settings_screen.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
 import 'package:maala_app/settings_screen/image_picker.dart';
 import 'package:maala_app/settings_screen/sound_picker.dart';
+import 'package:maala_app/theme/app_theme.dart';
+import 'package:maala_app/themes/meditation_themes.dart';
 import '../services/shared_pref_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -15,7 +18,9 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _hapticEnabled = SharedPrefHelper.getHapticEnabled();
   bool _keepScreenOn = SharedPrefHelper.getKeepScreenOn();
+  bool _focusMode = SharedPrefHelper.getFocusMode();
   late TextEditingController _countLimitController;
+  int _themeIndex = SharedPrefHelper.getThemeIndex();
 
   @override
   void initState() {
@@ -30,44 +35,212 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  MeditationTheme get _theme => meditationThemes[_themeIndex];
+
   void _saveCountLimit(String value) {
     final trimmed = value.trim();
     final parsed = int.tryParse(trimmed);
 
     if (parsed != null && parsed >= 1 && parsed <= 9999) {
       SharedPrefHelper.setCountLimit(parsed);
-      FocusScope.of(context).unfocus(); // close keyboard
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Counter limit set to $parsed")));
+      FocusScope.of(context).unfocus();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: _theme.surfaceElevated,
+          content: Text(
+            '${AppLocalizations.translate('countLimitSet')} $parsed',
+            style: GoogleFonts.inter(color: AppColors.textPrimary),
+          ),
+        ),
+      );
     } else {
-      // Reset to last known value
       final fallback = SharedPrefHelper.getCountLimit() ?? 108;
       _countLimitController.text = fallback.toString();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a valid number (1–9999)")),
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: _theme.surfaceElevated,
+          content: Text(
+            AppLocalizations.translate('enterCountLimit'),
+            style: GoogleFonts.inter(color: AppColors.textPrimary),
+          ),
+        ),
       );
     }
+  }
+
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _theme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppLocalizations.translate('chooseLanguage'),
+                  style: GoogleFonts.cormorantGaramond(
+                    color: AppColors.textPrimary,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildLanguageOption('English', 'en'),
+                _buildLanguageOption('हिन्दी', 'hi'),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+    );
+  }
+
+  Widget _buildLanguageOption(String label, String code) {
+    final isSelected = AppLocalizations.currentLang == code;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      decoration: BoxDecoration(
+        color:
+            isSelected
+                ? _theme.primaryAccent.withValues(alpha: 0.18)
+                : _theme.surfaceElevated,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+      ),
+      child: ListTile(
+        title: Text(
+          label,
+          style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 18),
+        ),
+        trailing:
+            isSelected
+                ? Icon(Icons.check_circle, color: _theme.primaryAccent)
+                : null,
+        onTap: () {
+          AppLocalizations.setLanguage(code);
+          Navigator.pop(context);
+          setState(() {});
+        },
+      ),
+    );
+  }
+
+  void _showThemePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _theme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppLocalizations.translate('chooseTheme'),
+                  style: GoogleFonts.cormorantGaramond(
+                    color: AppColors.textPrimary,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: List.generate(meditationThemes.length, (index) {
+                      final theme = meditationThemes[index];
+                      final isSelected = _themeIndex == index;
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        decoration: BoxDecoration(
+                          color:
+                              isSelected
+                                  ? theme.primaryAccent.withValues(alpha: 0.18)
+                                  : theme.surfaceElevated,
+                          borderRadius: BorderRadius.circular(AppRadii.medium),
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: theme.primaryAccent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          title: Text(
+                            theme.name,
+                            style: GoogleFonts.inter(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Text(
+                            theme.greeting,
+                            style: GoogleFonts.inter(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                          trailing:
+                              isSelected
+                                  ? Icon(
+                                    Icons.check_circle,
+                                    color: theme.primaryAccent,
+                                  )
+                                  : null,
+                          onTap: () {
+                            setState(() => _themeIndex = index);
+                            SharedPrefHelper.setThemeIndex(index);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _theme.background,
       appBar: AppBar(
-        title: const Text("Settings", style: TextStyle(color: Colors.white)),
+        title: Text(
+          AppLocalizations.translate('settings'),
+          style: GoogleFonts.cormorantGaramond(
+            color: AppColors.textPrimary,
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        automaticallyImplyLeading: false,
       ),
       body: Listener(
         onPointerDown: (_) => FocusScope.of(context).unfocus(),
-
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            _sectionLabel('PRACTICE'),
+            const SizedBox(height: 8),
             _buildToggleTile(
-              title: 'Enable Haptic Feedback',
+              title: AppLocalizations.translate('enableHaptic'),
               value: _hapticEnabled,
               onChanged: (val) {
                 setState(() => _hapticEnabled = val);
@@ -76,7 +249,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
             _buildToggleTile(
-              title: 'Keep Screen On',
+              title: AppLocalizations.translate('keepScreenOn'),
               value: _keepScreenOn,
               onChanged: (val) async {
                 setState(() => _keepScreenOn = val);
@@ -86,24 +259,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     : await ScreenAwakeService.disable();
               },
             ),
-            const Divider(height: 32, color: Colors.white24),
+            const SizedBox(height: 12),
+            _buildToggleTile(
+              title: AppLocalizations.translate('focusMode'),
+              subtitle: AppLocalizations.translate('focusModeSub'),
+              value: _focusMode,
+              onChanged: (val) {
+                setState(() => _focusMode = val);
+                SharedPrefHelper.setFocusMode(val);
+              },
+            ),
 
-            ListTile(
-              tileColor: const Color.fromARGB(96, 158, 158, 158),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              title: Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 16, 8, 16),
-                child: const Text(
-                  'Background Image',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-              ),
+            const SizedBox(height: 24),
+            _sectionLabel('APPEARANCE'),
+            const SizedBox(height: 8),
+            _buildNavTile(
+              title: AppLocalizations.translate('language'),
+              icon: Icons.language,
+              value: AppLocalizations.isHindi ? 'हिन्दी' : 'English',
+              onTap: _showLanguagePicker,
+            ),
+            const SizedBox(height: 12),
+            _buildNavTile(
+              title: AppLocalizations.translate('theme'),
+              icon: Icons.palette,
+              value: _theme.name,
+              onTap: _showThemePicker,
+            ),
+            const SizedBox(height: 12),
+            _buildNavTile(
+              title: AppLocalizations.translate('backgroundImage'),
+              icon: Icons.photo_outlined,
               onTap: () {
                 showDialog(
                   context: context,
@@ -111,25 +297,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ).then((_) => setState(() {}));
               },
             ),
-
-            const SizedBox(height: 16),
-
-            ListTile(
-              tileColor: const Color.fromARGB(96, 158, 158, 158),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              title: Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 16, 8, 16),
-                child: const Text(
-                  'Soundtrack',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-              ),
+            const SizedBox(height: 12),
+            _buildNavTile(
+              title: AppLocalizations.translate('soundtrack'),
+              icon: Icons.music_note_outlined,
               onTap: () {
                 showDialog(
                   context: context,
@@ -138,40 +309,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
 
-            const Divider(height: 32, color: Colors.white24),
-
+            const SizedBox(height: 24),
+            _sectionLabel('COUNTER'),
+            const SizedBox(height: 8),
             ListTile(
-              title: const Text(
-                "Counter Limit",
-                style: TextStyle(color: Colors.white),
+              title: Text(
+                AppLocalizations.translate('counterLimit'),
+                style: GoogleFonts.inter(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              subtitle: const Text(
-                "Number of taps before reset",
-                style: TextStyle(color: Colors.white60, fontSize: 12),
+              subtitle: Text(
+                AppLocalizations.translate('counterLimitSub'),
+                style: GoogleFonts.inter(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
-              tileColor: const Color.fromARGB(96, 158, 158, 158),
+              tileColor: _theme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadii.medium),
+                side: BorderSide(color: _theme.border),
               ),
               trailing: SizedBox(
                 width: 70,
                 child: TextField(
                   controller: _countLimitController,
                   keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.white),
+                  style: GoogleFonts.inter(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                  ),
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
                     isDense: true,
                     filled: true,
-                    fillColor: Colors.white12,
+                    fillColor: _theme.surfaceElevated,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.white24),
+                      borderRadius: BorderRadius.circular(AppRadii.small),
+                      borderSide: BorderSide(color: _theme.border),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(AppRadii.small),
+                      borderSide: BorderSide(color: _theme.primaryAccent),
                     ),
                   ),
                   onSubmitted: _saveCountLimit,
@@ -180,7 +362,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          color: AppColors.textTertiary,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 2,
         ),
       ),
     );
@@ -188,19 +386,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildToggleTile({
     required String title,
+    String? subtitle,
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(12),
+        color: _theme.surface,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+        border: Border.all(color: _theme.border),
       ),
       child: SwitchListTile.adaptive(
-        title: Text(title, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          title,
+          style: GoogleFonts.inter(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        subtitle:
+            subtitle != null
+                ? Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                )
+                : null,
         value: value,
         onChanged: onChanged,
-        activeColor: Colors.white,
+        activeThumbColor: _theme.primaryAccent,
+        activeTrackColor: _theme.primaryAccent.withValues(alpha: 0.4),
+      ),
+    );
+  }
+
+  Widget _buildNavTile({
+    required String title,
+    required IconData icon,
+    String? value,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _theme.surface,
+        borderRadius: BorderRadius.circular(AppRadii.medium),
+        border: Border.all(color: _theme.border),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: _theme.primaryAccent),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            title,
+            style: GoogleFonts.inter(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (value != null)
+              Text(
+                value,
+                style: GoogleFonts.inter(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right, color: AppColors.textTertiary),
+          ],
+        ),
+        onTap: onTap,
       ),
     );
   }

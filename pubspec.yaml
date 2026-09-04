@@ -1,7 +1,7 @@
 name: maala_app
-description: "A new Flutter project."
+description: "Maala - a japa mala counter and meditation timer app."
 publish_to: 'none'
-version: 1.0.3+5
+version: 1.0.4+6
 
 environment:
   sdk: ^3.7.2
@@ -9,20 +9,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences:   
-  google_nav_bar:
-  image_picker: 
-  path_provider: 
-  path:
-  permission_handler:
-  audioplayers:
+  flutter_localizations:
+    sdk: flutter
+  audioplayers: ^6.5.0
+  image_picker: ^1.1.2
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  shared_preferences: ^2.5.3
+  intl: any
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  rename:
-  flutter_launcher_icons:
+  flutter_launcher_icons: ^0.14.4
+  rename: ^3.1.0
 
 flutter:
   uses-material-design: true

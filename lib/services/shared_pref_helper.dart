@@ -10,6 +10,7 @@ class SharedPrefHelper {
   static const _totalSecondsKey = 'timer_total_seconds';
   static const _remainingSecondsKey = 'timer_remaining_seconds';
   static const _timerRunningKey = 'is_timer_running';
+  static const _timerDeadlineKey = 'timer_deadline_ms';
 
   static const _hapticKey = 'haptic_enabled';
   static const _screenOnKey = 'keep_screen_on';
@@ -17,6 +18,20 @@ class SharedPrefHelper {
   static const _backgroundKey = 'selected_background';
 
   static const _selectedSoundKey = 'selected_sound';
+
+  // New keys
+  static const _themeIndexKey = 'theme_index';
+  static const _languageCodeKey = 'language_code';
+  static const _totalChantsKey = 'total_chants';
+  static const _totalMalasKey = 'total_malas';
+  static const _sessionMalasKey = 'session_malas';
+  static const _streakKey = 'streak';
+  static const _lastPracticeDateKey = 'last_practice_date';
+  static const _bestStreakKey = 'best_streak';
+  static const _mantraTextKey = 'mantra_text';
+  static const _focusModeKey = 'focus_mode';
+  static const _todayMalasDateKey = 'today_malas_date';
+  static const _todayMalasKey = 'today_malas';
 
   /// Call this once in app initialization or first screen
   static Future<void> init() async {
@@ -42,6 +57,10 @@ class SharedPrefHelper {
   static void setTimerRunning(bool value) =>
       _prefs.setBool(_timerRunningKey, value);
 
+  static int? getTimerDeadlineMs() => _prefs.getInt(_timerDeadlineKey);
+  static void setTimerDeadlineMs(int ms) => _prefs.setInt(_timerDeadlineKey, ms);
+  static void clearTimerDeadline() => _prefs.remove(_timerDeadlineKey);
+
   // Haptic toggle
   static bool getHapticEnabled() => _prefs.getBool(_hapticKey) ?? true;
   static void setHapticEnabled(bool value) => _prefs.setBool(_hapticKey, value);
@@ -62,4 +81,63 @@ class SharedPrefHelper {
   static bool getKeepScreenOn() => _prefs.getBool(_screenOnKey) ?? false;
   static void setKeepScreenOn(bool value) =>
       _prefs.setBool(_screenOnKey, value);
+
+  // Theme
+  static int getThemeIndex() => _prefs.getInt(_themeIndexKey) ?? 0;
+  static void setThemeIndex(int value) => _prefs.setInt(_themeIndexKey, value);
+
+  // Language
+  static String? getLanguageCode() => _prefs.getString(_languageCodeKey);
+  static void setLanguageCode(String value) =>
+      _prefs.setString(_languageCodeKey, value);
+
+  // Total chants (lifetime)
+  static int getTotalChants() => _prefs.getInt(_totalChantsKey) ?? 0;
+  static void setTotalChants(int value) => _prefs.setInt(_totalChantsKey, value);
+  static void incrementTotalChants([int amount = 1]) {
+    setTotalChants(getTotalChants() + amount);
+  }
+
+  // Total malas (lifetime)
+  static int getTotalMalas() => _prefs.getInt(_totalMalasKey) ?? 0;
+  static void setTotalMalas(int value) => _prefs.setInt(_totalMalasKey, value);
+  static void incrementTotalMalas() {
+    setTotalMalas(getTotalMalas() + 1);
+  }
+
+  // Session malas (resets each time app is freshly opened or counter manually reset)
+  static int getSessionMalas() => _prefs.getInt(_sessionMalasKey) ?? 0;
+  static void setSessionMalas(int value) => _prefs.setInt(_sessionMalasKey, value);
+  static void incrementSessionMalas() {
+    setSessionMalas(getSessionMalas() + 1);
+  }
+  static void resetSessionMalas() => _prefs.setInt(_sessionMalasKey, 0);
+
+  // Today malas (date-scoped, rolls over at midnight)
+  static String? getTodayMalasDate() => _prefs.getString(_todayMalasDateKey);
+  static void setTodayMalasDate(String value) =>
+      _prefs.setString(_todayMalasDateKey, value);
+  static int getTodayMalas() => _prefs.getInt(_todayMalasKey) ?? 0;
+  static void setTodayMalas(int value) => _prefs.setInt(_todayMalasKey, value);
+
+  // Streak
+  static int getStreak() => _prefs.getInt(_streakKey) ?? 0;
+  static void setStreak(int value) => _prefs.setInt(_streakKey, value);
+
+  static int getBestStreak() => _prefs.getInt(_bestStreakKey) ?? 0;
+  static void setBestStreak(int value) => _prefs.setInt(_bestStreakKey, value);
+
+  // Last practice date (YYYY-MM-DD)
+  static String? getLastPracticeDate() => _prefs.getString(_lastPracticeDateKey);
+  static void setLastPracticeDate(String value) =>
+      _prefs.setString(_lastPracticeDateKey, value);
+
+  // Mantra text
+  static String getMantraText() => _prefs.getString(_mantraTextKey) ?? 'ॐ';
+  static void setMantraText(String value) =>
+      _prefs.setString(_mantraTextKey, value);
+
+  // Focus mode
+  static bool getFocusMode() => _prefs.getBool(_focusModeKey) ?? false;
+  static void setFocusMode(bool value) => _prefs.setBool(_focusModeKey, value);
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/shared_pref_helper.dart';
+import '../theme/app_theme.dart';
+import '../themes/meditation_themes.dart';
 
 class SoundPickerDialog extends StatefulWidget {
   const SoundPickerDialog({super.key});
@@ -52,17 +55,24 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = meditationThemes[SharedPrefHelper.getThemeIndex()];
     return Dialog(
-      backgroundColor: Colors.black.withAlpha(230),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: theme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadii.large),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               "Choose Soundtrack",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: GoogleFonts.cormorantGaramond(
+                color: AppColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 16),
             ...sounds.asMap().entries.map((entry) {
@@ -73,43 +83,50 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
               final isPlaying = _previewing == soundPath;
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: ListTile(
-                  tileColor: isSelected ? Colors.white24 : Colors.white10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? theme.primaryAccent.withValues(alpha: 0.18)
+                        : theme.surfaceElevated,
+                    borderRadius: BorderRadius.circular(AppRadii.medium),
                   ),
-                  leading: IconButton(
-                    icon: Icon(
-                      isPlaying ? Icons.stop_circle : Icons.play_circle,
-                      color: isPlaying ? Colors.redAccent : Colors.white,
+                  child: ListTile(
+                    leading: IconButton(
+                      icon: Icon(
+                        isPlaying ? Icons.stop_circle : Icons.play_circle,
+                        color: isPlaying ? theme.primaryAccent : AppColors.textSecondary,
+                      ),
+                      onPressed: () => _togglePreview(soundPath),
                     ),
-                    onPressed: () => _togglePreview(soundPath),
-                  ),
-                  title: Text(
-                    meta["title"]!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                    title: Text(
+                      meta["title"]!,
+                      style: GoogleFonts.inter(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
                     ),
+                    subtitle: Text(
+                      meta["subtitle"]!,
+                      style: GoogleFonts.inter(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? Icon(Icons.check_circle, color: theme.primaryAccent)
+                        : null,
+                    onTap: () {
+                      SharedPrefHelper.setSelectedSound(soundPath);
+                      setState(() {
+                        _selected = soundPath;
+                      });
+                    },
                   ),
-                  subtitle: Text(
-                    meta["subtitle"]!,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                  trailing:
-                      isSelected
-                          ? const Icon(Icons.check, color: Colors.amber)
-                          : null,
-                  onTap: () {
-                    SharedPrefHelper.setSelectedSound(soundPath);
-                    setState(() {
-                      _selected = soundPath;
-                    });
-                  },
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
