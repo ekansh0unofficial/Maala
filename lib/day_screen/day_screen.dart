@@ -5,6 +5,7 @@ import 'package:maala_app/services/shared_pref_helper.dart';
 import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
+import 'package:maala_app/widgets/adaptive_banner_ad.dart';
 
 class DayScreen extends StatefulWidget {
   const DayScreen({super.key});
@@ -97,6 +98,8 @@ class _DayScreenState extends State<DayScreen> {
               const Spacer(),
 
               _buildMantraSection(theme),
+              const SizedBox(height: 20),
+              AdaptiveBannerAd(),
             ],
           ),
         ),

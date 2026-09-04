@@ -23,9 +23,8 @@ class _CounterScreenState extends State<CounterScreen> {
   int _countLimit = 108;
   int _sessionMalas = 0;
   int _totalMalas = 0;
-  int _totalChants = 0;
   int _streak = 0;
-  String _mantraText = 'ॐ';
+  String _mantraText = 'ॐ नमः शिवाय';
   bool _showCompletionOverlay = false;
   bool _focusMode = false;
 
@@ -59,7 +58,6 @@ class _CounterScreenState extends State<CounterScreen> {
     }
     _sessionMalas = SharedPrefHelper.getSessionMalas();
     _totalMalas = SharedPrefHelper.getTotalMalas();
-    _totalChants = SharedPrefHelper.getTotalChants();
     _streak = SharedPrefHelper.getStreak();
     _mantraText = SharedPrefHelper.getMantraText();
     _focusMode = SharedPrefHelper.getFocusMode();
@@ -101,7 +99,6 @@ class _CounterScreenState extends State<CounterScreen> {
     }
 
     SharedPrefHelper.incrementTotalChants();
-    _totalChants = SharedPrefHelper.getTotalChants();
   }
 
   /// Returns a stable, timezone-safe "yyyy-MM-dd" key based on local calendar
@@ -493,39 +490,33 @@ class _CounterScreenState extends State<CounterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Mantra (tappable to change)
+                  // Mantra (tappable to change). Styled as a pill/chip with a
+                  // faint border and accent-tinted text so it visibly reads
+                  // as an interactive control now that the icons are gone —
+                  // otherwise it looks like static plain text.
                   GestureDetector(
                     onTap: _showMantraPicker,
                     behavior: HitTestBehavior.opaque,
-                    child: Padding(
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 20,
+                        vertical: 10,
+                        horizontal: 22,
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.self_improvement,
-                            color: theme.primaryAccent,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            _mantraText,
-                            style: GoogleFonts.inter(
-                              fontSize: _focusMode ? 22 : 17,
-                              color: AppColors.textPrimary,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Icon(
-                            Icons.expand_more,
-                            color: AppColors.textSecondary,
-                            size: 20,
-                          ),
-                        ],
+                      decoration: BoxDecoration(
+                        color: theme.primaryAccent.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: theme.primaryAccent.withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Text(
+                        _mantraText,
+                        style: GoogleFonts.inter(
+                          fontSize: _focusMode ? 22 : 17,
+                          color: theme.primaryAccent,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -579,7 +570,7 @@ class _CounterScreenState extends State<CounterScreen> {
                           child: Text(
                             '$_count',
                             key: ValueKey(_count),
-                            style: GoogleFonts.cormorantGaramond(
+                            style: GoogleFonts.montserrat(
                               fontSize: _focusMode ? 96 : 72,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textPrimary,
@@ -602,50 +593,43 @@ class _CounterScreenState extends State<CounterScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Stats
-                  if (!_focusMode && (_sessionMalas > 0 || _totalChants > 0))
-                    Column(
-                      children: [
-                        if (_sessionMalas > 0)
-                          Text(
-                            '$_sessionMalas mala${_sessionMalas > 1 ? 's' : ''} completed',
-                            style: GoogleFonts.inter(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
-                        if (_totalChants > 0)
+                  // Everything below the counter sits on top of a full-bleed
+                  // background image, so it needs its own opaque-ish surface
+                  // to stay readable regardless of the image underneath —
+                  // matching the counter card above instead of floating
+                  // directly on the scrim.
+                  if (!_focusMode)
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 32),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 20,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.surface,
+                        borderRadius: BorderRadius.circular(AppRadii.large),
+                        border: Border.all(color: theme.border),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Quote
+                          const DailyQuote(),
+
+                          // Tap hint
                           Padding(
-                            padding: const EdgeInsets.only(top: 4),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Text(
-                              '$_totalChants chants total',
+                              AppLocalizations.translate('tapToCount'),
                               style: GoogleFonts.inter(
-                                color: AppColors.textTertiary,
+                                color: AppColors.textSecondary,
                                 fontSize: 12,
+                                letterSpacing: 0.5,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                      ],
-                    ),
-
-                  // Quote
-                  if (!_focusMode)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 32),
-                      child: const DailyQuote(),
-                    ),
-
-                  // Tap hint
-                  if (!_focusMode)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: Text(
-                        AppLocalizations.translate('tapToCount'),
-                        style: GoogleFonts.inter(
-                          color: AppColors.textTertiary,
-                          fontSize: 12,
-                          letterSpacing: 0.5,
-                        ),
+                        ],
                       ),
                     ),
                 ],

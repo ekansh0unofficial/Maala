@@ -149,7 +149,7 @@ class _TimerScreenState extends State<TimerScreen> {
                   children: [
                     Text(
                       '$h:$m:$s',
-                      style: GoogleFonts.cormorantGaramond(
+                      style: GoogleFonts.montserrat(
                         fontSize: 56,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,

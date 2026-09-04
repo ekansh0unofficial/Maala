@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:label="Maala"
@@ -32,6 +33,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- AdMob application ID. Value is public (embedded in the release APK),
+             not a secret. Do not change unless you update your AdMob app. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8594021229417102~1057647908" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

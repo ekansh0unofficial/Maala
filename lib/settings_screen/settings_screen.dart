@@ -7,6 +7,7 @@ import 'package:maala_app/settings_screen/sound_picker.dart';
 import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
+import 'package:maala_app/widgets/adaptive_banner_ad.dart';
 import '../services/shared_pref_helper.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -271,6 +272,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 24),
+            const SizedBox(height: 12),
+            AdaptiveBannerAd(),
             const SizedBox(height: 24),
           ],
         ),

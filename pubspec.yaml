@@ -19,6 +19,7 @@ dependencies:
   intl: any
   google_fonts: ^6.2.1
   image_color_scheme: ^1.0.5
+  google_mobile_ads: ^5.2.0
 
 dev_dependencies:
   flutter_test:
