@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/shared_pref_helper.dart';
+import '../services/sound_catalog.dart';
 import '../services/theme_service.dart';
 import '../theme/app_theme.dart';
 
@@ -13,15 +14,6 @@ class SoundPickerDialog extends StatefulWidget {
 }
 
 class _SoundPickerDialogState extends State<SoundPickerDialog> {
-  final List<Map<String, String>> soundMeta = [
-    {"title": "Meditative Gong", "subtitle": "bells"},
-    {"title": "Meditative Gong 2", "subtitle": "bells"},
-    {"title": "Forest Peace", "subtitle": "Pixabay"},
-    {"title": "Inner peace", "subtitle": "Pixabay"},
-    {"title": "Spiritual Moment", "subtitle": "Mixkit"},
-    {"title": "Light Body Activation", "subtitle": "IamThatIam888 - Pixabay"},
-  ];
-
   late final List<String> sounds;
   String? _selected;
   String? _previewing;
@@ -30,7 +22,7 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
   @override
   void initState() {
     super.initState();
-    sounds = List.generate(soundMeta.length, (i) => 'audio/${i + 1}.mp3');
+    sounds = [for (final option in soundOptions) option.path];
     _selected = SharedPrefHelper.getSelectedSound();
     _player.setReleaseMode(ReleaseMode.loop);
   }
@@ -45,11 +37,11 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
   Future<void> _togglePreview(String path) async {
     if (_previewing == path) {
       await _player.stop();
-      setState(() => _previewing = null);
+      if (mounted) setState(() => _previewing = null);
     } else {
       await _player.stop();
       await _player.play(AssetSource(path));
-      setState(() => _previewing = path);
+      if (mounted) setState(() => _previewing = path);
     }
   }
 
@@ -75,58 +67,76 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            ...sounds.asMap().entries.map((entry) {
-              final index = entry.key;
-              final soundPath = entry.value;
-              final meta = soundMeta[index];
-              final isSelected = _selected == soundPath;
-              final isPlaying = _previewing == soundPath;
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ...sounds.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final soundPath = entry.value;
+                  final option = soundOptions[index];
+                  final isSelected = _selected == soundPath;
+                  final isPlaying = _previewing == soundPath;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? theme.primaryAccent.withValues(alpha: 0.18)
-                        : theme.surfaceElevated,
-                    borderRadius: BorderRadius.circular(AppRadii.medium),
-                  ),
-                  child: ListTile(
-                    leading: IconButton(
-                      icon: Icon(
-                        isPlaying ? Icons.stop_circle : Icons.play_circle,
-                        color: isPlaying ? theme.primaryAccent : AppColors.textSecondary,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? theme.primaryAccent.withValues(alpha: 0.18)
+                            : theme.surfaceElevated,
+                        borderRadius: BorderRadius.circular(AppRadii.medium),
                       ),
-                      onPressed: () => _togglePreview(soundPath),
-                    ),
-                    title: Text(
-                      meta["title"]!,
-                      style: GoogleFonts.inter(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                      child: ListTile(
+                        leading: IconButton(
+                          icon: Icon(
+                            isPlaying ? Icons.stop_circle : Icons.play_circle,
+                            color: isPlaying
+                                ? theme.primaryAccent
+                                : AppColors.textSecondary,
+                          ),
+                          onPressed: () => _togglePreview(soundPath),
+                        ),
+                        title: Text(
+                          option.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Pairs best with the ${option.themeName} theme',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: isSelected
+                            ? Icon(
+                                Icons.check_circle,
+                                color: theme.primaryAccent,
+                              )
+                            : null,
+                        onTap: () {
+                          SharedPrefHelper.setSelectedSound(soundPath);
+                          setState(() {
+                            _selected = soundPath;
+                          });
+                        },
                       ),
                     ),
-                    subtitle: Text(
-                      meta["subtitle"]!,
-                      style: GoogleFonts.inter(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                    trailing: isSelected
-                        ? Icon(Icons.check_circle, color: theme.primaryAccent)
-                        : null,
-                    onTap: () {
-                      SharedPrefHelper.setSelectedSound(soundPath);
-                      setState(() {
-                        _selected = soundPath;
-                      });
-                    },
-                  ),
+);
+                  }),
+                  ],
                 ),
-              );
-            }),
+              ),
+            ),
           ],
         ),
       ),

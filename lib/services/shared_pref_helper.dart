@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'sound_catalog.dart';
 
 class SharedPrefHelper {
   static late SharedPreferences _prefs;
@@ -72,8 +73,11 @@ class SharedPrefHelper {
       _prefs.setString(_backgroundKey, path);
 
   //Background Music
-  static String getSelectedSound() =>
-      _prefs.getString(_selectedSoundKey) ?? 'audio/1.mp3';
+  static String getSelectedSound() {
+    final saved = _prefs.getString(_selectedSoundKey);
+    if (saved != null && isKnownSoundPath(saved)) return saved;
+    return defaultSoundPath;
+  }
   static void setSelectedSound(String path) =>
       _prefs.setString(_selectedSoundKey, path);
 

@@ -9,6 +9,9 @@ import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/timer_screen/timer_screen.dart';
 import 'package:maala_app/settings_screen/settings_screen.dart';
 
+const double _sideRailWidth = 88;
+const double _bottomNavHeight = 60;
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,6 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late PageController _pageController;
+  Orientation? _lastOrientation;
 
   final List<Widget> _screens = const [
     CounterScreen(),
@@ -51,45 +55,72 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
+    final orientation = MediaQuery.of(context).orientation;
+    final isPortrait = orientation == Orientation.portrait;
+    final isLandscape = orientation == Orientation.landscape;
+
+    // Rotating rebuilds the PageView; re-sync it to the selected tab so the
+    // visible page always matches the highlighted nav item instead of
+    // snapping back to the first screen.
+    if (_lastOrientation != null && _lastOrientation != orientation) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pageController.hasClients) {
+          _pageController.jumpToPage(_selectedIndex);
+        }
+      });
+    }
+    _lastOrientation = orientation;
 
     return ValueListenableBuilder<MeditationTheme>(
       valueListenable: ThemeService.themeNotifier,
       builder: (context, theme, _) {
-        return isPortrait
-            ? Scaffold(
-                body: PageView(
+        return Scaffold(
+          // The PageView lives in one persistent slot and only the chrome
+          // (rail vs bottom nav) is swapped around it, so its element is never
+          // destroyed and recreated when the orientation changes.
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left: isLandscape ? _sideRailWidth : 0,
+                  bottom: isPortrait
+                      ? _bottomNavHeight + MediaQuery.of(context).padding.bottom
+                      : 0,
+                ),
+                child: PageView(
                   controller: _pageController,
                   onPageChanged: (i) => setState(() => _selectedIndex = i),
-                  scrollDirection: Axis.horizontal,
+                  scrollDirection:
+                      isPortrait ? Axis.horizontal : Axis.vertical,
                   physics: const BouncingScrollPhysics(),
                   children: _screens,
                 ),
-                bottomNavigationBar: _BottomNavBar(
-                  selectedIndex: _selectedIndex,
-                  onTap: _onNavTapped,
+              ),
+              if (isPortrait)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: _BottomNavBar(
+                    selectedIndex: _selectedIndex,
+                    onTap: _onNavTapped,
+                  ),
                 ),
-              )
-            : Scaffold(
-                body: Row(
-                  children: [
-                    _SideRail(
-                      selectedIndex: _selectedIndex,
-                      onTap: _onNavTapped,
-                    ),
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        scrollDirection: Axis.vertical,
-                        onPageChanged: (i) => setState(() => _selectedIndex = i),
-                        physics: const BouncingScrollPhysics(),
-                        children: _screens,
-                      ),
-                    ),
-                  ],
+              if (isLandscape)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: _sideRailWidth,
+                  child: _SideRail(
+                    selectedIndex: _selectedIndex,
+                    onTap: _onNavTapped,
+                  ),
                 ),
-              );
+            ],
+          ),
+        );
       },
     );
   }
@@ -118,7 +149,7 @@ class _BottomNavBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 60,
+          height: _bottomNavHeight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(4, (i) {
@@ -208,7 +239,7 @@ class _SideRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 88,
+      width: _sideRailWidth,
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(right: BorderSide(color: AppColors.border, width: 0.5)),

@@ -20,7 +20,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _hapticEnabled = SharedPrefHelper.getHapticEnabled();
   bool _keepScreenOn = SharedPrefHelper.getKeepScreenOn();
-  bool _focusMode = SharedPrefHelper.getFocusMode();
   late TextEditingController _countLimitController;
 
   @override
@@ -174,16 +173,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 val
                     ? await ScreenAwakeService.enable()
                     : await ScreenAwakeService.disable();
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildToggleTile(
-              title: AppLocalizations.translate('focusMode'),
-              subtitle: AppLocalizations.translate('focusModeSub'),
-              value: _focusMode,
-              onChanged: (val) {
-                setState(() => _focusMode = val);
-                SharedPrefHelper.setFocusMode(val);
               },
             ),
 

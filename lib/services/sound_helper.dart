@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import '../services/shared_pref_helper.dart';
+import 'sound_catalog.dart';
+import 'shared_pref_helper.dart';
 
 class SoundHelper {
   static final AudioPlayer _player = AudioPlayer();
@@ -42,7 +43,7 @@ class SoundHelper {
   static Future<void> playCompletionGong() async {
     try {
       await _completionPlayer.stop();
-      await _completionPlayer.play(AssetSource('audio/1.mp3'));
+      await _completionPlayer.play(AssetSource(completionSoundPath));
     } catch (e) {
       debugPrint('Completion sound failed: $e');
     }

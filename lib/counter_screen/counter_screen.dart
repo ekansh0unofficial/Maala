@@ -486,153 +486,162 @@ class _CounterScreenState extends State<CounterScreen> {
             behavior: HitTestBehavior.opaque,
             onTap: () => _updateCounter(_count + 1),
             onLongPress: _toggleFocusMode,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Mantra (tappable to change). Styled as a pill/chip with a
-                  // faint border and accent-tinted text so it visibly reads
-                  // as an interactive control now that the icons are gone —
-                  // otherwise it looks like static plain text.
-                  GestureDetector(
-                    onTap: _showMantraPicker,
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 22,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.primaryAccent.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: theme.primaryAccent.withValues(alpha: 0.35),
-                        ),
-                      ),
-                      child: Text(
-                        _mantraText,
-                        style: GoogleFonts.inter(
-                          fontSize: _focusMode ? 22 : 17,
-                          color: theme.primaryAccent,
-                          letterSpacing: 2,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Streak
-                  if (!_focusMode && _streak > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.local_fire_department,
-                            color: theme.primaryAccent,
-                            size: 20,
+            // Centers the whole portrait stack (mantra, counter, box below)
+            // as one block. Center handles the case where content is
+            // shorter than the screen; SingleChildScrollView guarantees no
+            // overflow if it's ever taller (e.g. very short landscape
+            // viewports) by letting it scroll instead of clipping.
+            child: SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Mantra (tappable to change). Styled as a pill/chip with a
+                      // faint border and accent-tinted text so it visibly reads
+                      // as an interactive control now that the icons are gone —
+                      // otherwise it looks like static plain text.
+                      GestureDetector(
+                        onTap: _showMantraPicker,
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 22,
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '$_streak',
-                            style: GoogleFonts.inter(
-                              color: theme.primaryAccent,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Counter card - flat surface
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 48,
-                      vertical: _focusMode ? 24 : 18,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.surface,
-                      borderRadius: BorderRadius.circular(AppRadii.large),
-                      border: Border.all(color: theme.border),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          transitionBuilder:
-                              (child, anim) =>
-                                  ScaleTransition(scale: anim, child: child),
-                          child: Text(
-                            '$_count',
-                            key: ValueKey(_count),
-                            style: GoogleFonts.montserrat(
-                              fontSize: _focusMode ? 96 : 72,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                              height: 1.1,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          '/ $_countLimit',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                            letterSpacing: 1,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Everything below the counter sits on top of a full-bleed
-                  // background image, so it needs its own opaque-ish surface
-                  // to stay readable regardless of the image underneath —
-                  // matching the counter card above instead of floating
-                  // directly on the scrim.
-                  if (!_focusMode)
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 32),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 20,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.surface,
-                        borderRadius: BorderRadius.circular(AppRadii.large),
-                        border: Border.all(color: theme.border),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Quote
-                          const DailyQuote(),
-
-                          // Tap hint
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Text(
-                              AppLocalizations.translate('tapToCount'),
-                              style: GoogleFonts.inter(
-                                color: AppColors.textSecondary,
-                                fontSize: 12,
-                                letterSpacing: 0.5,
-                                fontWeight: FontWeight.w500,
+                          decoration: BoxDecoration(
+                            color: theme.primaryAccent.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: theme.primaryAccent.withValues(
+                                alpha: 0.35,
                               ),
                             ),
                           ),
-                        ],
+                          child: Text(
+                            _mantraText,
+                            style: GoogleFonts.inter(
+                              fontSize: _focusMode ? 24 : 17,
+                              color: theme.primaryAccent,
+                              letterSpacing: 2,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                ],
+
+                      const SizedBox(height: 16),
+
+                      // Streak
+                      if (!_focusMode && _streak > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '$_streak',
+                                style: GoogleFonts.inter(
+                                  color: theme.primaryAccent,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Counter card - flat surface
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 48,
+                          vertical: _focusMode ? 18 : 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.surface,
+                          borderRadius: BorderRadius.circular(AppRadii.large),
+                          border: Border.all(color: theme.border),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder:
+                                  (child, anim) => ScaleTransition(
+                                    scale: anim,
+                                    child: child,
+                                  ),
+                              child: Text(
+                                '$_count',
+                                key: ValueKey(_count),
+                                style: GoogleFonts.montserrat(
+                                  fontSize: _focusMode ? 96 : 72,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '/ $_countLimit',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                                letterSpacing: 1,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Everything below the counter sits on top of a full-bleed
+                      // background image, so it needs its own opaque-ish surface
+                      // to stay readable regardless of the image underneath —
+                      // matching the counter card above instead of floating
+                      // directly on the scrim.
+                      if (!_focusMode)
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 32),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 20,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.surface,
+                            borderRadius: BorderRadius.circular(AppRadii.large),
+                            border: Border.all(color: theme.border),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Quote
+                              const DailyQuote(),
+
+                              // Tap hint
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20),
+                                child: Text(
+                                  AppLocalizations.translate('longPressFocus'),
+                                  style: GoogleFonts.inter(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                    letterSpacing: 0.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

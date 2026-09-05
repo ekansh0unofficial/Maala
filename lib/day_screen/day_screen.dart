@@ -47,60 +47,73 @@ class _DayScreenState extends State<DayScreen> {
     return Container(
       color: theme.background,
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocalizations.translate('day'),
-                style: GoogleFonts.cormorantGaramond(
-                  color: AppColors.textPrimary,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w600,
+        // Scrollable so the stats + mantra + banner never overflow on short
+        // landscape viewports. IntrinsicHeight keeps the Spacer pinning the
+        // mantra section and banner to the bottom whenever there's room.
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.translate('day'),
+                        style: GoogleFonts.cormorantGaramond(
+                          color: AppColors.textPrimary,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppLocalizations.translate('streak'),
+                        style: GoogleFonts.inter(
+                          color: AppColors.textTertiary,
+                          fontSize: 12,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      _buildStreakCard(theme),
+                      const SizedBox(height: 20),
+
+                      _buildStatRow(
+                        label: AppLocalizations.translate('today'),
+                        value: '$_todayMalas mala${_todayMalas != 1 ? 's' : ''}',
+                        icon: Icons.self_improvement,
+                        theme: theme,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatRow(
+                        label: 'Total malas',
+                        value: '$_totalMalas',
+                        icon: Icons.auto_stories,
+                        theme: theme,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatRow(
+                        label: 'Total chants',
+                        value:
+                            _totalChants > 0 ? _totalChants.toString() : '-',
+                        icon: Icons.record_voice_over,
+                        theme: theme,
+                      ),
+
+                      const Spacer(),
+
+                      _buildMantraSection(theme),
+                      const SizedBox(height: 20),
+                      AdaptiveBannerAd(),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                AppLocalizations.translate('streak'),
-                style: GoogleFonts.inter(
-                  color: AppColors.textTertiary,
-                  fontSize: 12,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              _buildStreakCard(theme),
-              const SizedBox(height: 20),
-
-              _buildStatRow(
-                label: AppLocalizations.translate('today'),
-                value: '$_todayMalas mala${_todayMalas != 1 ? 's' : ''}',
-                icon: Icons.self_improvement,
-                theme: theme,
-              ),
-              const SizedBox(height: 12),
-              _buildStatRow(
-                label: 'Total malas',
-                value: '$_totalMalas',
-                icon: Icons.auto_stories,
-                theme: theme,
-              ),
-              const SizedBox(height: 12),
-              _buildStatRow(
-                label: 'Total chants',
-                value: _totalChants > 0 ? _totalChants.toString() : '-',
-                icon: Icons.record_voice_over,
-                theme: theme,
-              ),
-
-              const Spacer(),
-
-              _buildMantraSection(theme),
-              const SizedBox(height: 20),
-              AdaptiveBannerAd(),
-            ],
+            ),
           ),
         ),
       ),

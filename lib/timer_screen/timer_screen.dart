@@ -128,10 +128,13 @@ class _TimerScreenState extends State<TimerScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
             GestureDetector(
               onTap: _showTimePickerDialog,
               child: Container(
@@ -183,6 +186,8 @@ class _TimerScreenState extends State<TimerScreen> {
               ],
             ),
           ],
+            ),
+          ),
         ),
       ),
     ),
