@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../themes/meditation_themes.dart';
 import 'sound_catalog.dart';
 
 class SharedPrefHelper {
@@ -17,6 +18,16 @@ class SharedPrefHelper {
   static const _screenOnKey = 'keep_screen_on';
 
   static const _backgroundKey = 'selected_background';
+
+  // Cached derived theme (warm-start fast path)
+  static const _themeCacheBgKey = 'theme_cache_bg_path';
+  static const _themeCachePrimaryKey = 'theme_cache_primary_accent';
+  static const _themeCacheCardKey = 'theme_cache_card';
+  static const _themeCacheNavKey = 'theme_cache_nav';
+  static const _themeCacheBackgroundKey = 'theme_cache_background_color';
+  static const _themeCacheSurfaceKey = 'theme_cache_surface';
+  static const _themeCacheSurfaceElevatedKey = 'theme_cache_surface_elevated';
+  static const _themeCacheBorderKey = 'theme_cache_border';
 
   static const _selectedSoundKey = 'selected_sound';
 
@@ -71,6 +82,50 @@ class SharedPrefHelper {
       _prefs.getString(_backgroundKey) ?? 'assets/images/1.jpg';
   static void setBackgroundImage(String path) =>
       _prefs.setString(_backgroundKey, path);
+
+  // Cached derived theme (warm-start fast path)
+  static String? getThemeCacheBackgroundPath() =>
+      _prefs.getString(_themeCacheBgKey);
+  static int? getThemeCachePrimaryAccent() =>
+      _prefs.getInt(_themeCachePrimaryKey);
+  static int? getThemeCacheCard() => _prefs.getInt(_themeCacheCardKey);
+  static int? getThemeCacheNav() => _prefs.getInt(_themeCacheNavKey);
+  static int? getThemeCacheBackground() => _prefs.getInt(_themeCacheBackgroundKey);
+  static int? getThemeCacheSurface() => _prefs.getInt(_themeCacheSurfaceKey);
+  static int? getThemeCacheSurfaceElevated() =>
+      _prefs.getInt(_themeCacheSurfaceElevatedKey);
+  static int? getThemeCacheBorder() => _prefs.getInt(_themeCacheBorderKey);
+
+  static void saveThemeCache({
+    required String backgroundPath,
+    required MeditationTheme theme,
+  }) {
+    _prefs.setString(_themeCacheBgKey, backgroundPath);
+    _prefs.setInt(_themeCachePrimaryKey, theme.primaryAccent.toARGB32());
+    _prefs.setInt(_themeCacheCardKey, theme.cardColor.toARGB32());
+    _prefs.setInt(_themeCacheNavKey, theme.navColor.toARGB32());
+    _prefs.setInt(
+      _themeCacheBackgroundKey,
+      theme.background.toARGB32(),
+    );
+    _prefs.setInt(_themeCacheSurfaceKey, theme.surface.toARGB32());
+    _prefs.setInt(
+      _themeCacheSurfaceElevatedKey,
+      theme.surfaceElevated.toARGB32(),
+    );
+    _prefs.setInt(_themeCacheBorderKey, theme.border.toARGB32());
+  }
+
+  static void clearThemeCache() {
+    _prefs.remove(_themeCacheBgKey);
+    _prefs.remove(_themeCachePrimaryKey);
+    _prefs.remove(_themeCacheCardKey);
+    _prefs.remove(_themeCacheNavKey);
+    _prefs.remove(_themeCacheBackgroundKey);
+    _prefs.remove(_themeCacheSurfaceKey);
+    _prefs.remove(_themeCacheSurfaceElevatedKey);
+    _prefs.remove(_themeCacheBorderKey);
+  }
 
   //Background Music
   static String getSelectedSound() {

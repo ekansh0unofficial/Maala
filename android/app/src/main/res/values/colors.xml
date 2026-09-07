@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand launch/splash backdrop, matching AppColors.background (night). -->
+    <color name="launch_background_color">#0B0E16</color>
+</resources>

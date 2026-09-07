@@ -54,7 +54,16 @@ const List<SoundOption> soundOptions = [
 const String defaultSoundPath = 'audio/Calm_Nighttime_Chirps.mp3';
 
 /// The ambient drone played when a session completes.
-const String completionSoundPath = 'audio/Tibetan_Singing_Bowls.mp3';
+const String completionSoundPath = 'audio/Final_Bell.mp3';
+
+/// Duration of a single [completionSoundPath] clip in seconds.
+const int completionSoundLengthSeconds = 4;
+
+/// Number of times the completion bell rings at the end of a session.
+const int completionRingCount = 3;
+
+/// Overlap (in seconds) between consecutive rings of the completion bell.
+const int completionRingOverlapSeconds = 1;
 
 bool isKnownSoundPath(String path) =>
     soundOptions.any((option) => option.path == path);

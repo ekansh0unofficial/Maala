@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:maala_app/services/shared_pref_helper.dart';
 import 'package:maala_app/services/sound_helper.dart';
+import 'package:maala_app/services/vibration_service.dart';
 
 /// Countdown timer backed by wall-clock deadlines so it keeps correct time
 /// even when the app is backgrounded or the device sleeps.
@@ -11,8 +12,19 @@ class TimerHelper {
   static Timer? _timer;
   static Function()? _onTick;
 
+  /// Set when a session finishes (tick, wall-clock reconciliation after
+  /// restart, etc.) so the UI can react with a completion overlay. Cleared
+  /// whenever a new session is started/paused/reset or the flag is read.
+  static bool _justCompleted = false;
+  static Future<void>? _completionFuture;
+
   static Duration get remaining => _remaining;
+  static Duration get totalDuration => _totalDuration;
   static bool get isRunning => _timer?.isActive ?? false;
+  static bool get justCompleted => _justCompleted;
+  static Future<void>? get completionFuture => _completionFuture;
+
+  static void clearCompletedFlag() => _justCompleted = false;
 
   static void initialize(Function() onTick) {
     _onTick = onTick;
@@ -40,10 +52,12 @@ class TimerHelper {
   }
 
   static void updateDuration(int hours, int minutes, int seconds) {
+    unawaited(SoundHelper.stopTimerAlarm());
     final totalSeconds = hours * 3600 + minutes * 60 + seconds;
     _totalDuration = Duration(seconds: totalSeconds);
     _remaining = _totalDuration;
     _deadline = null;
+    _justCompleted = false;
 
     SharedPrefHelper.setTotalSeconds(totalSeconds);
     SharedPrefHelper.setRemainingSeconds(totalSeconds);
@@ -56,6 +70,7 @@ class TimerHelper {
     if (_remaining <= Duration.zero) return;
     _timer?.cancel();
     _deadline = DateTime.now().add(_remaining);
+    _justCompleted = false;
     SharedPrefHelper.setTimerDeadlineMs(_deadline!.millisecondsSinceEpoch);
     SharedPrefHelper.setTimerRunning(true);
     _tick();
@@ -64,6 +79,7 @@ class TimerHelper {
   static void pause() {
     _timer?.cancel();
     _timer = null;
+    _justCompleted = false;
     if (_deadline != null) {
       _remaining = _deadline!.difference(DateTime.now());
       if (_remaining < Duration.zero) _remaining = Duration.zero;
@@ -72,12 +88,15 @@ class TimerHelper {
     SharedPrefHelper.setRemainingSeconds(_remaining.inSeconds);
     SharedPrefHelper.clearTimerDeadline();
     SharedPrefHelper.setTimerRunning(false);
+    _onTick?.call();
   }
 
   static void reset() {
+    unawaited(SoundHelper.stopTimerAlarm());
     _timer?.cancel();
     _timer = null;
     _deadline = null;
+    _justCompleted = false;
     _remaining = _totalDuration;
     SharedPrefHelper.setRemainingSeconds(_totalDuration.inSeconds);
     SharedPrefHelper.clearTimerDeadline();
@@ -108,10 +127,15 @@ class TimerHelper {
     _timer = null;
     _deadline = null;
     _remaining = Duration.zero;
+    _justCompleted = true;
     SharedPrefHelper.setRemainingSeconds(0);
     SharedPrefHelper.clearTimerDeadline();
     SharedPrefHelper.setTimerRunning(false);
     SoundHelper.stop();
+    // Start one atomic completion cue. TimerScreen waits for this exact Future.
+    _completionFuture = SoundHelper.playTimerAlarm();
+    unawaited(_completionFuture!);
+    unawaited(VibrationService.vibrate(durationMs: 200));
     _onTick?.call();
   }
 

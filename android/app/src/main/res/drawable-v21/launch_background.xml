@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
+<!-- Branded launch screen: dark backdrop matching the app's night theme with a
+     soft saffron glow in the center, shown from process start until Flutter's
+     first frame so cold starts feel instantly on-brand instead of blank white. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="?android:colorBackground" />
+    <item android:drawable="@color/launch_background_color" />
 
-    <!-- You can insert your own image assets here -->
-    <!-- <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/launch_image" />
-    </item> -->
+    <item
+        android:gravity="center"
+        android:width="112dp"
+        android:height="112dp">
+        <shape android:shape="oval">
+            <gradient
+                android:startColor="#2EC98A2E"
+                android:centerColor="#14C98A2E"
+                android:endColor="#00000000"
+                android:type="radial"
+                android:gradientRadius="50%p" />
+            <stroke
+                android:width="1dp"
+                android:color="#59C98A2E" />
+        </shape>
+    </item>
 </layer-list>

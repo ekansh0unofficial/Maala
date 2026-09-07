@@ -1,0 +1,110 @@
+PRIVACY POLICY
+==============
+
+App: Maala - Japa Mala Counter & Meditation Timer
+Package: com.ekansh.maala_app
+Last updated: [ENTER DATE]
+
+This privacy policy describes how information is handled when you use the
+Maala app on your Android device.
+
+1. WHAT THE APP DOES
+--------------------
+Maala is a meditation companion app with two main features:
+  - A japa mala counter (Mala Counter) that counts chants/malas.
+  - A meditation timer with optional ambient soundtracks.
+
+2. NO ACCOUNT, NO PERSONAL INFORMATION
+--------------------------------------
+Maala does not require an account, does not ask for your name, email,
+phone number, or any identifiers, and does not process payments.
+You can use the app completely anonymously.
+
+3. DATA STORED ON YOUR DEVICE ONLY
+----------------------------------
+All app data is stored locally on your device. It never leaves your
+device and is never sent to us.
+
+This data includes:
+  - Your chant counts, total malas, session malas, and daily totals.
+  - Meditation streak data and last practice date.
+  - Timer settings and in-progress timer state.
+  - App preferences (haptics, keep-screen-on, language, theme, and the
+    background image you selected).
+  - Your selected ambient soundtrack.
+
+This data is stored using Android's local storage (SharedPreferences).
+It is used solely to reload your settings and history the next time you
+open the app.
+
+4. BACKGROUND IMAGES
+--------------------
+If you choose to use a photo from your device as a background image,
+that image is read by the app for display on your device only. It is
+never uploaded, transmitted, or shared with us or any third party.
+
+5. ADS (GOOGLE ADMOB)
+---------------------
+Maala displays banner advertisements served by Google AdMob. When ads
+are shown, Google may use cookies, device identifiers, and usage data to
+deliver and personalise ads, in accordance with Google's own privacy
+policy.
+
+We do not collect or control this data. Please review Google's policies:
+  - Google Privacy Policy: https://policies.google.com/privacy
+  - Google Ads / Data Disclosure:
+    https://policies.google.com/technologies/ads
+
+Personalised vs. non-personalised ads are controlled by Google. If you
+do not wish to receive personalised ads, you can adjust your ad
+personalisation settings in your Google Account, or set "Opt out of Ads
+Personalisation" at: https://adssettings.google.com
+
+6. PERMISSIONS USED
+-------------------
+The app requests the following Android permissions:
+  - Internet: required to load advertisements (AdMob).
+  - Vibration: used to provide haptic feedback when you count with the
+    mala counter.
+
+The app does not request access to your contacts, messages, call log,
+or precise location.
+
+7. CHILDREN'S PRIVACY
+---------------------
+Maala is designed for a general audience and does not knowingly collect
+any personal information from children. If you are a parent or guardian
+and you believe the app has collected any such information, contact us
+using the details below and we will investigate and remove it promptly.
+Ad serving to children is handled by Google AdMob under its own
+policies; you may adjust Google ad personalisation as described in
+section 5.
+
+8. DATA SHARING
+---------------
+We do not sell, rent, or trade your data to anyone. The only third
+party that interacts with the app is Google AdMob for ad serving, as
+described in section 5. We do not use analytics or crash-reporting
+services, and we cannot see any data that the app stores on your
+device.
+
+9. DATA RETENTION AND DELETION
+------------------------------
+All data listed in section 3 remains on your device until you either:
+  - clear the app's data, or
+  - uninstall the app.
+Uninstalling Maala permanently deletes all locally stored data.
+
+10. CHANGES TO THIS POLICY
+--------------------------
+We may update this policy from time to time. Any changes will be
+reflected by updating the "Last updated" date at the top of this
+document. Continued use of the app after changes means you accept the
+updated policy.
+
+11. CONTACT
+-----------
+If you have any questions about this privacy policy, you can contact us
+at:
+  ekanshmittal04@gmail.com
+  

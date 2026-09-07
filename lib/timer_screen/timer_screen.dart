@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
@@ -7,6 +8,7 @@ import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
 import 'package:maala_app/widgets/background_image.dart';
+import 'package:maala_app/widgets/timer_complete_overlay.dart';
 import '../services/shared_pref_helper.dart';
 
 class TimerScreen extends StatefulWidget {
@@ -19,6 +21,8 @@ class TimerScreen extends StatefulWidget {
 class _TimerScreenState extends State<TimerScreen> {
   bool _isRunning = false;
   Duration _remaining = const Duration();
+  bool _showSessionComplete = false;
+  String _completedDurationLabel = '';
 
   @override
   void initState() {
@@ -26,6 +30,7 @@ class _TimerScreenState extends State<TimerScreen> {
     TimerHelper.initialize(_updateRemaining);
     _isRunning = TimerHelper.isRunning;
     _remaining = TimerHelper.remaining;
+    _handleJustCompleted();
   }
 
   void _updateRemaining() {
@@ -34,6 +39,39 @@ class _TimerScreenState extends State<TimerScreen> {
       _remaining = TimerHelper.remaining;
       _isRunning = TimerHelper.isRunning;
     });
+    _handleJustCompleted();
+  }
+
+  /// If the timer finished (live tick or wall-clock reconciliation after a
+  /// restart), raise the completion overlay for the just-finished session.
+  void _handleJustCompleted() {
+    if (!TimerHelper.justCompleted) return;
+    TimerHelper.clearCompletedFlag();
+    _completedDurationLabel = TimerHelper.formatDuration(
+      TimerHelper.totalDuration,
+    );
+    if (!mounted) return;
+
+    // This Future belongs to the exact timer completion that triggered this
+    // overlay. It resolves only after the third bell has finished.
+    final completionFuture = TimerHelper.completionFuture;
+
+    setState(() => _showSessionComplete = true);
+
+    if (completionFuture != null) {
+      unawaited(() async {
+        await completionFuture;
+        if (mounted) {
+          setState(() => _showSessionComplete = false);
+        }
+      }());
+    }
+  }
+
+  void _dismissSessionComplete() {
+    // Explicit dismiss cuts off the remaining alarm bells too.
+    SoundHelper.stopTimerAlarm();
+    if (mounted) setState(() => _showSessionComplete = false);
   }
 
   void _startTimer() {
@@ -51,9 +89,11 @@ class _TimerScreenState extends State<TimerScreen> {
   void _resetTimer() {
     TimerHelper.reset();
     SoundHelper.stop();
+    unawaited(SoundHelper.stopTimerAlarm());
     setState(() {
       _isRunning = false;
       _remaining = TimerHelper.remaining;
+      _showSessionComplete = false;
     });
   }
 
@@ -64,6 +104,15 @@ class _TimerScreenState extends State<TimerScreen> {
       barrierDismissible: true,
       builder: (_) => _TimePickerDialog(initial: _remaining),
     );
+  }
+
+  void _toggleMusic() async {
+    if (SoundHelper.isPlaying) {
+      await SoundHelper.pause();
+    } else {
+      await SoundHelper.play();
+    }
+    if (mounted) setState(() {});
   }
 
   @override
@@ -83,114 +132,123 @@ class _TimerScreenState extends State<TimerScreen> {
         Container(color: theme.overlayColor),
         Scaffold(
           backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.translate('meditate'),
-          style: GoogleFonts.cormorantGaramond(
-            color: AppColors.textPrimary,
-            fontSize: 26,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            // Bug fix: when the timer wasn't running, this button was
-            // disabled but still showed SoundHelper.isPlaying's icon (often
-            // the "mute" icon), which read as "sound is on, but I can't tap
-            // it" — confusing/broken-looking. Now it always shows a plain
-            // muted-note icon while disabled, and only reflects live
-            // playback state once it's actually interactive.
-            icon: Icon(
-              _isRunning && SoundHelper.isPlaying
-                  ? Icons.music_off_rounded
-                  : Icons.music_note,
-              color:
-                  _isRunning ? AppColors.textPrimary : AppColors.textTertiary,
-              size: 28,
-            ),
-            tooltip:
-                _isRunning
-                    ? (SoundHelper.isPlaying ? 'Pause sound' : 'Play sound')
-                    : 'Start the timer to enable sound',
-            onPressed:
-                !_isRunning
-                    ? null
-                    : () async {
-                      if (SoundHelper.isPlaying) {
-                        await SoundHelper.pause();
-                      } else {
-                        await SoundHelper.play();
-                      }
-                      setState(() {});
-                    },
-          ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-            GestureDetector(
-              onTap: _showTimePickerDialog,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 28,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.surface,
-                  borderRadius: BorderRadius.circular(AppRadii.large),
-                  border: Border.all(color: theme.border),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$h:$m:$s',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 56,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _isRunning ? 'counting down' : 'tap to set',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
+          appBar: AppBar(
+            title: Text(
+              AppLocalizations.translate('meditate'),
+              style: GoogleFonts.cormorantGaramond(
+                color: AppColors.textPrimary,
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _customButton(
-                  _isRunning ? Icons.pause : Icons.play_arrow,
-                  _isRunning ? _pauseTimer : _startTimer,
-                  theme,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            actions: [
+              // Reflects the CURRENT music state (not the action): active accent
+              // note when playing, dimmed muted icon when still. Always tappable
+              // so the soundtrack can be started/paused independently of the timer.
+              IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        SoundHelper.isPlaying
+                            ? theme.primaryAccent.withValues(alpha: 0.20)
+                            : Colors.transparent,
+                  ),
+                  child: Icon(
+                    SoundHelper.isPlaying
+                        ? Icons.music_note_rounded
+                        : Icons.music_off_rounded,
+                    size: 24,
+                    color: theme.primaryAccent,
+                  ),
                 ),
-                const SizedBox(width: 24),
-                _customButton(Icons.stop_rounded, _resetTimer, theme),
-              ],
-            ),
-          ],
-            ),
+                iconSize: 40,
+                tooltip: SoundHelper.isPlaying ? 'Pause sound' : 'Play sound',
+                onPressed: _toggleMusic,
+              ),
+            ],
+          ),
+          body: LayoutBuilder(
+            builder:
+                (context, constraints) => SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: _showTimePickerDialog,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 28,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.surface,
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.large,
+                              ),
+                              border: Border.all(color: theme.border),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$h:$m:$s',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 56,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  _isRunning ? 'counting down' : 'tap to set',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _customButton(
+                              _isRunning ? Icons.pause : Icons.play_arrow,
+                              _isRunning ? _pauseTimer : _startTimer,
+                              theme,
+                            ),
+                            const SizedBox(width: 24),
+                            _customButton(
+                              Icons.stop_rounded,
+                              _resetTimer,
+                              theme,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
           ),
         ),
-      ),
-    ),
+        if (_showSessionComplete)
+          TimerCompleteOverlay(
+            durationLabel: _completedDurationLabel,
+            theme: theme,
+            onDismiss: _dismissSessionComplete,
+          ),
       ],
     );
   }

@@ -318,8 +318,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 : null,
         value: value,
         onChanged: onChanged,
-        activeThumbColor: _theme.primaryAccent,
-        activeTrackColor: _theme.primaryAccent.withValues(alpha: 0.4),
+        // On/off colors intentionally flipped: accent shows when the toggle
+        // is OFF, neutral grey when ON.
+        activeThumbColor: Colors.white,
+        activeTrackColor: Colors.grey.shade400,
+        inactiveThumbColor: _theme.primaryAccent,
+        inactiveTrackColor: _theme.primaryAccent.withValues(alpha: 0.4),
       ),
     );
   }
