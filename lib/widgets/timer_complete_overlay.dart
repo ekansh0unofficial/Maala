@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/app_theme.dart';
 import '../themes/meditation_themes.dart';
 
@@ -113,28 +113,20 @@ class _TimerCompleteOverlayState extends State<TimerCompleteOverlay>
                           const SizedBox(height: 14),
                           Text(
                             'Session complete',
-                            style: GoogleFonts.cormorantGaramond(
-                              fontSize: 30,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
+                            style: AppTextStyles.cormorantHeadline,
                           ),
                           const SizedBox(height: 6),
                           Text(
                             widget.durationLabel,
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
+                            style: AppTextStyles.interTitle.copyWith(
                               color: accent,
                               letterSpacing: 1,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'May you be at peace',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
+                            style: AppTextStyles.interBody.copyWith(
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -155,10 +147,8 @@ class _TimerCompleteOverlayState extends State<TimerCompleteOverlay>
                             ),
                             child: Text(
                               'Dismiss',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
+                              style: AppTextStyles.interSubSemiBold.copyWith(
                                 color: accent,
-                                fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
                               ),
                             ),

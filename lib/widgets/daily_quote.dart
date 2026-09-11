@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/quotes_service.dart';
-import 'package:maala_app/theme/app_theme.dart';
+import 'package:maala_app/theme/app_text_styles.dart';
 
 class DailyQuote extends StatefulWidget {
   const DailyQuote({super.key});
@@ -45,13 +44,7 @@ class _DailyQuoteState extends State<DailyQuote>
         child: Text(
           _quote,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: AppColors.textSecondary,
-            fontStyle: FontStyle.italic,
-            height: 1.5,
-            letterSpacing: 0.3,
-          ),
+          style: AppTextStyles.interQuote,
         ),
       ),
     );

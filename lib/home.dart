@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/counter_screen/counter_screen.dart';
 import 'package:maala_app/day_screen/day_screen.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/theme_service.dart';
+import 'package:maala_app/theme/app_text_styles.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/timer_screen/timer_screen.dart';
@@ -24,13 +24,14 @@ class _HomeScreenState extends State<HomeScreen> {
   late PageController _pageController;
   Orientation? _lastOrientation;
 
-  final List<Widget> _screens = const [
-    CounterScreen(),
-    TimerScreen(),
-    DayScreen(),
-    SettingsScreen(),
-  ];
+  final GlobalKey<DayScreenState> _dayKey = GlobalKey<DayScreenState>();
 
+  List<Widget> _buildScreens() => [
+    const CounterScreen(),
+    const TimerScreen(),
+    DayScreen(key: _dayKey),
+    const SettingsScreen(),
+  ];
   @override
   void initState() {
     super.initState();
@@ -46,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onNavTapped(int index) {
     if (_selectedIndex == index) return;
     setState(() => _selectedIndex = index);
+    if (index == 2) _dayKey.currentState?.refresh();
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 400),
@@ -90,11 +92,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: PageView(
                   controller: _pageController,
-                  onPageChanged: (i) => setState(() => _selectedIndex = i),
+                  onPageChanged: (i) {
+                    setState(() => _selectedIndex = i);
+                    if (i == 2) _dayKey.currentState?.refresh();
+                  },
                   scrollDirection:
                       isPortrait ? Axis.horizontal : Axis.vertical,
                   physics: const BouncingScrollPhysics(),
-                  children: _screens,
+                  children: _buildScreens(),
                 ),
               ),
               if (isPortrait)
@@ -210,10 +215,11 @@ class _NavButton extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
+              style: AppTextStyles.interNav.copyWith(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? AppColors.textPrimary : AppColors.textTertiary,
+                color: selected
+                    ? AppColors.textPrimary
+                    : AppColors.textTertiary,
               ),
             ),
           ],
@@ -274,10 +280,11 @@ class _SideRail extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     label,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
+                    style: AppTextStyles.interNav.copyWith(
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                      color: selected ? AppColors.textPrimary : AppColors.textTertiary,
+                      color: selected
+                          ? AppColors.textPrimary
+                          : AppColors.textTertiary,
                     ),
                   ),
                 ],

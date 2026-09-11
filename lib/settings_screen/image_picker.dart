@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../services/image_picker_helper.dart';
 import '../services/theme_service.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/app_theme.dart';
 import '../themes/meditation_themes.dart';
 import '../widgets/background_image.dart';
@@ -98,11 +98,7 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
         children: [
           Text(
             'Choose Background',
-            style: GoogleFonts.cormorantGaramond(
-              color: AppColors.textPrimary,
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.cormorantDialogTitle,
           ),
           const SizedBox(height: 16),
           // +1 for the trailing "Pick from gallery" tile.
@@ -169,7 +165,7 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
               onPressed: () => setState(() => _previewImage = null),
               child: Text(
                 'Back',
-                style: GoogleFonts.inter(color: AppColors.textSecondary),
+                style: AppTextStyles.interSub,
               ),
             ),
             ElevatedButton(
@@ -188,10 +184,7 @@ class _BackgroundPickerDialogState extends State<BackgroundPickerDialog> {
               ),
               child: Text(
                 'Set as Background',
-                style: GoogleFonts.inter(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTextStyles.interSubSemiBold,
               ),
             ),
           ],

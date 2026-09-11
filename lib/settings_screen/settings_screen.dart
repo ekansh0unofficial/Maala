@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
 import 'package:maala_app/settings_screen/image_picker.dart';
 import 'package:maala_app/settings_screen/sound_picker.dart';
 import 'package:maala_app/services/theme_service.dart';
+import 'package:maala_app/theme/app_text_styles.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/widgets/adaptive_banner_ad.dart';
@@ -50,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: _theme.surfaceElevated,
           content: Text(
             '${AppLocalizations.translate('countLimitSet')} $parsed',
-            style: GoogleFonts.inter(color: AppColors.textPrimary),
+            style: AppTextStyles.interSubRegular,
           ),
         ),
       );
@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: _theme.surfaceElevated,
           content: Text(
             AppLocalizations.translate('enterCountLimit'),
-            style: GoogleFonts.inter(color: AppColors.textPrimary),
+            style: AppTextStyles.interSubRegular,
           ),
         ),
       );
@@ -85,11 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   AppLocalizations.translate('chooseLanguage'),
-                  style: GoogleFonts.cormorantGaramond(
-                    color: AppColors.textPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.cormorantDialogHeading,
                 ),
                 const SizedBox(height: 16),
                 _buildLanguageOption('English', 'en'),
@@ -115,7 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: ListTile(
         title: Text(
           label,
-          style: GoogleFonts.inter(color: AppColors.textPrimary, fontSize: 18),
+          style: AppTextStyles.interLabelLg,
         ),
         trailing:
             isSelected
@@ -137,11 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(
           AppLocalizations.translate('settings'),
-          style: GoogleFonts.cormorantGaramond(
-            color: AppColors.textPrimary,
-            fontSize: 26,
-            fontWeight: FontWeight.w600,
-          ),
+          style: AppTextStyles.cormorantTitle,
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -214,17 +206,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               title: Text(
                 AppLocalizations.translate('counterLimit'),
-                style: GoogleFonts.inter(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: AppTextStyles.interSubMedium,
               ),
               subtitle: Text(
                 AppLocalizations.translate('counterLimitSub'),
-                style: GoogleFonts.inter(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                ),
+                style: AppTextStyles.interXs,
               ),
               tileColor: _theme.surface,
               shape: RoundedRectangleBorder(
@@ -236,10 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: TextField(
                   controller: _countLimitController,
                   keyboardType: TextInputType.number,
-                  style: GoogleFonts.inter(
-                    color: AppColors.textPrimary,
-                    fontSize: 16,
-                  ),
+                  style: AppTextStyles.interTitleRegular,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -276,12 +259,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
         text,
-        style: GoogleFonts.inter(
-          color: AppColors.textTertiary,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 2,
-        ),
+        style: AppTextStyles.interCaption,
       ),
     );
   }
@@ -301,19 +279,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: SwitchListTile.adaptive(
         title: Text(
           title,
-          style: GoogleFonts.inter(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.w500,
-          ),
+          style: AppTextStyles.interSubMedium,
         ),
         subtitle:
             subtitle != null
                 ? Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
-                  ),
+                  style: AppTextStyles.interXs,
                 )
                 : null,
         value: value,
@@ -346,10 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
             title,
-            style: GoogleFonts.inter(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTextStyles.interSubMedium,
           ),
         ),
         trailing: Row(
@@ -358,10 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (value != null)
               Text(
                 value,
-                style: GoogleFonts.inter(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                ),
+                style: AppTextStyles.interBody,
               ),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right, color: AppColors.textTertiary),

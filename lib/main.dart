@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/home.dart';
 import 'package:maala_app/services/ad_service.dart';
 import 'package:maala_app/services/localization_service.dart';
@@ -15,7 +14,6 @@ import 'package:maala_app/widgets/background_image.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  GoogleFonts.config.allowRuntimeFetching = false;
   await SharedPrefHelper.init();
   final themeCached = ThemeService.applyCachedTheme();
   runApp(MainApp(themeCached: themeCached));

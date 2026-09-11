@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../services/shared_pref_helper.dart';
 import '../services/sound_catalog.dart';
 import '../services/theme_service.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/app_theme.dart';
 
 class SoundPickerDialog extends StatefulWidget {
@@ -60,11 +60,7 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
           children: [
             Text(
               "Choose Soundtrack",
-              style: GoogleFonts.cormorantGaramond(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.cormorantDialogTitle,
             ),
             const SizedBox(height: 16),
             Flexible(
@@ -102,20 +98,13 @@ class _SoundPickerDialogState extends State<SoundPickerDialog> {
                           option.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
+                          style: AppTextStyles.interBodyLgSemiBold,
                         ),
                         subtitle: Text(
                           'Pairs best with the ${option.themeName} theme',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
+                          style: AppTextStyles.interXs,
                         ),
                         trailing: isSelected
                             ? Icon(

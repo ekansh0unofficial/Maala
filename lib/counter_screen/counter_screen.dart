@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/sound_helper.dart';
 import 'package:maala_app/services/theme_service.dart';
+import 'package:maala_app/theme/app_text_styles.dart';
 import 'package:maala_app/services/vibration_service.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/widgets/background_image.dart';
@@ -22,7 +22,6 @@ class _CounterScreenState extends State<CounterScreen> {
   int _count = 0;
   int _countLimit = 108;
   int _sessionMalas = 0;
-  int _totalMalas = 0;
   int _streak = 0;
   String _mantraText = 'ॐ नमः शिवाय';
   bool _showCompletionOverlay = false;
@@ -57,7 +56,6 @@ class _CounterScreenState extends State<CounterScreen> {
       SharedPrefHelper.setCounter(_count);
     }
     _sessionMalas = SharedPrefHelper.getSessionMalas();
-    _totalMalas = SharedPrefHelper.getTotalMalas();
     _streak = SharedPrefHelper.getStreak();
     _mantraText = SharedPrefHelper.getMantraText();
     _focusMode = SharedPrefHelper.getFocusMode();
@@ -68,11 +66,10 @@ class _CounterScreenState extends State<CounterScreen> {
     if (value > _countLimit) {
       value = 0;
       _sessionMalas++;
-      _totalMalas++;
+      // Persist once each; the increment helpers already store the new value,
+      // so no need to re-write the locals back afterward.
       SharedPrefHelper.incrementSessionMalas();
       SharedPrefHelper.incrementTotalMalas();
-      SharedPrefHelper.setTotalMalas(_totalMalas);
-      SharedPrefHelper.setSessionMalas(_sessionMalas);
 
       _updateStreak();
       _updateTodayMalas();
@@ -83,8 +80,6 @@ class _CounterScreenState extends State<CounterScreen> {
       setState(() {
         _showCompletionOverlay = true;
         _count = 0;
-        _sessionMalas = SharedPrefHelper.getSessionMalas();
-        _totalMalas = SharedPrefHelper.getTotalMalas();
       });
 
       SharedPrefHelper.setCounter(0);
@@ -184,11 +179,7 @@ class _CounterScreenState extends State<CounterScreen> {
               children: [
                 Text(
                   'Choose Mantra',
-                  style: GoogleFonts.cormorantGaramond(
-                    color: AppColors.textPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTextStyles.cormorantDialogHeading,
                 ),
                 const SizedBox(height: 16),
                 Flexible(
@@ -208,17 +199,11 @@ class _CounterScreenState extends State<CounterScreen> {
                         ),
                         title: Text(
                           mantra['text']!,
-                          style: GoogleFonts.inter(
-                            color: AppColors.textPrimary,
-                            fontSize: 20,
-                          ),
+                          style: AppTextStyles.interMantra,
                         ),
                         subtitle: Text(
                           mantra['label']!,
-                          style: GoogleFonts.inter(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
-                          ),
+                          style: AppTextStyles.interBody,
                         ),
                         trailing:
                             isSelected
@@ -246,7 +231,7 @@ class _CounterScreenState extends State<CounterScreen> {
                     leading: Icon(Icons.edit, color: theme.primaryAccent),
                     title: Text(
                       'Custom Mantra',
-                      style: GoogleFonts.inter(color: AppColors.textPrimary),
+                      style: AppTextStyles.interSubRegular,
                     ),
                     onTap: () {
                       Navigator.pop(context);
@@ -284,11 +269,7 @@ class _CounterScreenState extends State<CounterScreen> {
                 children: [
                   Text(
                     'Enter Mantra',
-                    style: GoogleFonts.cormorantGaramond(
-                      color: AppColors.textPrimary,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.cormorantDialogHeading,
                   ),
                   const SizedBox(height: 20),
                   TextField(
@@ -296,16 +277,11 @@ class _CounterScreenState extends State<CounterScreen> {
                     autofocus: true,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => FocusScope.of(context).unfocus(),
-                    style: GoogleFonts.inter(
-                      color: AppColors.textPrimary,
-                      fontSize: 20,
-                    ),
+                    style: AppTextStyles.interMantra,
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                       hintText: 'Type your mantra',
-                      hintStyle: GoogleFonts.inter(
-                        color: AppColors.textTertiary,
-                      ),
+                      hintStyle: AppTextStyles.interHint,
                       filled: true,
                       fillColor: theme.surfaceElevated,
                       border: OutlineInputBorder(
@@ -326,9 +302,7 @@ class _CounterScreenState extends State<CounterScreen> {
                         onPressed: () => Navigator.pop(context),
                         child: Text(
                           AppLocalizations.translate('cancel'),
-                          style: GoogleFonts.inter(
-                            color: AppColors.textSecondary,
-                          ),
+                          style: AppTextStyles.interSub,
                         ),
                       ),
                       TextButton(
@@ -342,9 +316,8 @@ class _CounterScreenState extends State<CounterScreen> {
                         },
                         child: Text(
                           AppLocalizations.translate('set'),
-                          style: GoogleFonts.inter(
+                          style: AppTextStyles.interSubSemiBold.copyWith(
                             color: theme.primaryAccent,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -376,32 +349,27 @@ class _CounterScreenState extends State<CounterScreen> {
             ),
             title: Text(
               'Reset count?',
-              style: GoogleFonts.cormorantGaramond(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.cormorantDialogTitle,
             ),
             content: Text(
               'This clears your current count ($_count / $_countLimit) and this '
               "session's mala progress. Your streak and totals are not affected.",
-              style: GoogleFonts.inter(color: AppColors.textSecondary),
+              style: AppTextStyles.interBody,
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: Text(
                   AppLocalizations.translate('cancel'),
-                  style: GoogleFonts.inter(color: AppColors.textSecondary),
+                  style: AppTextStyles.interSub,
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 child: Text(
                   'Reset',
-                  style: GoogleFonts.inter(
+                  style: AppTextStyles.interSubSemiBold.copyWith(
                     color: theme.primaryAccent,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -450,11 +418,7 @@ class _CounterScreenState extends State<CounterScreen> {
                   : AppBar(
                     title: Text(
                       AppLocalizations.translate('pray'),
-                      style: GoogleFonts.cormorantGaramond(
-                        color: AppColors.textPrimary,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyles.cormorantTitle,
                     ),
                     backgroundColor: Colors.transparent,
                     elevation: 0,
@@ -521,11 +485,10 @@ class _CounterScreenState extends State<CounterScreen> {
                           ),
                           child: Text(
                             _mantraText,
-                            style: GoogleFonts.inter(
+                            style: AppTextStyles.interHeading.copyWith(
                               fontSize: _focusMode ? 24 : 17,
                               color: theme.primaryAccent,
                               letterSpacing: 2,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -542,10 +505,8 @@ class _CounterScreenState extends State<CounterScreen> {
                             children: [
                               Text(
                                 '$_streak',
-                                style: GoogleFonts.inter(
+                                style: AppTextStyles.interTitle.copyWith(
                                   color: theme.primaryAccent,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -576,22 +537,15 @@ class _CounterScreenState extends State<CounterScreen> {
                               child: Text(
                                 '$_count',
                                 key: ValueKey(_count),
-                                style: GoogleFonts.montserrat(
+                                style: AppTextStyles.montserratDisplay.copyWith(
                                   fontSize: _focusMode ? 96 : 72,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
                                   height: 1.1,
                                 ),
                               ),
                             ),
                             Text(
                               '/ $_countLimit',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
-                                letterSpacing: 1,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              style: AppTextStyles.interTitleMedium,
                             ),
                           ],
                         ),
@@ -627,12 +581,7 @@ class _CounterScreenState extends State<CounterScreen> {
                                 padding: const EdgeInsets.only(top: 20),
                                 child: Text(
                                   AppLocalizations.translate('longPressFocus'),
-                                  style: GoogleFonts.inter(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                    letterSpacing: 0.5,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  style: AppTextStyles.interCaptionSoft,
                                 ),
                               ),
                             ],

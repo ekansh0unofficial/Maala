@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:maala_app/services/shared_pref_helper.dart';
 import 'package:maala_app/services/sound_helper.dart';
 import 'package:maala_app/services/vibration_service.dart';
@@ -11,6 +12,11 @@ class TimerHelper {
   static DateTime? _deadline;
   static Timer? _timer;
   static Function()? _onTick;
+
+  /// Notifies listeners every second so only the timer text rebuilds,
+  /// not the whole TimerScreen widget tree.
+  static final ValueNotifier<Duration> remainingNotifier =
+      ValueNotifier(Duration.zero);
 
   /// Set when a session finishes (tick, wall-clock reconciliation after
   /// restart, etc.) so the UI can react with a completion overlay. Cleared
@@ -39,6 +45,7 @@ class TimerHelper {
       if (left > 0) {
         _remaining = Duration(milliseconds: left);
         _deadline = DateTime.fromMillisecondsSinceEpoch(deadlineMs);
+        remainingNotifier.value = _remaining;
         _tick();
         return;
       }
@@ -48,6 +55,7 @@ class TimerHelper {
 
     final remainingSec = SharedPrefHelper.getRemainingSeconds();
     _remaining = Duration(seconds: remainingSec > 0 ? remainingSec : totalSec);
+    remainingNotifier.value = _remaining;
     _onTick?.call();
   }
 
@@ -63,6 +71,7 @@ class TimerHelper {
     SharedPrefHelper.setRemainingSeconds(totalSeconds);
     SharedPrefHelper.clearTimerDeadline();
     SharedPrefHelper.setTimerRunning(false);
+    remainingNotifier.value = _remaining;
     _onTick?.call();
   }
 
@@ -88,6 +97,7 @@ class TimerHelper {
     SharedPrefHelper.setRemainingSeconds(_remaining.inSeconds);
     SharedPrefHelper.clearTimerDeadline();
     SharedPrefHelper.setTimerRunning(false);
+    remainingNotifier.value = _remaining;
     _onTick?.call();
   }
 
@@ -101,6 +111,7 @@ class TimerHelper {
     SharedPrefHelper.setRemainingSeconds(_totalDuration.inSeconds);
     SharedPrefHelper.clearTimerDeadline();
     SharedPrefHelper.setTimerRunning(false);
+    remainingNotifier.value = _remaining;
     _onTick?.call();
   }
 
@@ -116,9 +127,11 @@ class TimerHelper {
         _complete();
       } else {
         SharedPrefHelper.setRemainingSeconds(_remaining.inSeconds);
+        remainingNotifier.value = _remaining;
         _onTick?.call();
       }
     });
+    remainingNotifier.value = _remaining;
     _onTick?.call();
   }
 
@@ -136,6 +149,7 @@ class TimerHelper {
     _completionFuture = SoundHelper.playTimerAlarm();
     unawaited(_completionFuture!);
     unawaited(VibrationService.vibrate(durationMs: 200));
+    remainingNotifier.value = _remaining;
     _onTick?.call();
   }
 

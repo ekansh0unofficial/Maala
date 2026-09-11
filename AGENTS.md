@@ -7,18 +7,6 @@ Guidance for AI coding agents working in this repository.
 Maala is a Flutter japa-mala counter + meditation timer app, **live on Google Play**
 (package `com.ekansh.maala_app`). Treat the codebase as production software.
 
-## STRICT BOUNDARY: CI/CD is user-owned
-
-The owner is learning CI/CD and does all of it **themselves**:
-
-- **NEVER** create, modify, or delete GitHub Actions workflows (`.github/`), build/release
-  scripts, or CI/CD-related configuration.
-- **NEVER** set up, suggest changes to, or manage repository secrets or deployment pipelines.
-- Answering a *directly asked* conceptual question about CI/CD is allowed; doing the work is not.
-
-Agent scope = **bug fixes and new features** in application code (`lib/`, platform configs,
-assets). If a task seems CI/CD-adjacent, stop and ask.
-
 ## Commands
 
 ```bash

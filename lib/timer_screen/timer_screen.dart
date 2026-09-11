@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/sound_helper.dart';
 import 'package:maala_app/services/theme_service.dart';
+import 'package:maala_app/theme/app_text_styles.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/timer_screen/timer_helper.dart';
@@ -29,16 +29,19 @@ class _TimerScreenState extends State<TimerScreen> {
     super.initState();
     TimerHelper.initialize(_updateRemaining);
     _isRunning = TimerHelper.isRunning;
-    _remaining = TimerHelper.remaining;
     _handleJustCompleted();
   }
 
+  // Called on every timer event. The ticking HH:MM:SS readout is isolated
+  // to notifier-driven rebuilds (see the ValueListenableBuilder), so this
+  // only needs to refresh state that changes rarely (running flag) plus the
+  // completion overlay — not the whole tree every second.
   void _updateRemaining() {
     if (!mounted) return;
-    setState(() {
-      _remaining = TimerHelper.remaining;
-      _isRunning = TimerHelper.isRunning;
-    });
+    final running = TimerHelper.isRunning;
+    if (running != _isRunning) {
+      setState(() => _isRunning = running);
+    }
     _handleJustCompleted();
   }
 
@@ -120,10 +123,6 @@ class _TimerScreenState extends State<TimerScreen> {
     final theme = ThemeService.current;
     final background = SharedPrefHelper.getBackgroundImage();
 
-    final h = _remaining.inHours.toString().padLeft(2, '0');
-    final m = _remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final s = _remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
-
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -135,11 +134,7 @@ class _TimerScreenState extends State<TimerScreen> {
           appBar: AppBar(
             title: Text(
               AppLocalizations.translate('meditate'),
-              style: GoogleFonts.cormorantGaramond(
-                color: AppColors.textPrimary,
-                fontSize: 26,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.cormorantTitle,
             ),
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -195,29 +190,40 @@ class _TimerScreenState extends State<TimerScreen> {
                               ),
                               border: Border.all(color: theme.border),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '$h:$m:$s',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 56,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                    letterSpacing: 2,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Ticking readout isolated to a ValueListenable
+                                  // so only this Text rebuilds each second (the
+                                  // rest of the screen no longer setStates per tick).
+                                  ValueListenableBuilder<Duration>(
+                                    valueListenable:
+                                        TimerHelper.remainingNotifier,
+                                    builder: (context, remaining, _) {
+                                      final text = TimerHelper.formatDuration(
+                                        remaining,
+                                      );
+                                      return Text(
+                                        text,
+                                        style: AppTextStyles.montserratDisplay
+                                            .copyWith(
+                                              fontSize: 56,
+                                              letterSpacing: 2,
+                                            ),
+                                      );
+                                    },
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _isRunning ? 'counting down' : 'tap to set',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: AppColors.textSecondary,
-                                    letterSpacing: 1,
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _isRunning
+                                        ? 'counting down'
+                                        : 'tap to set',
+                                    style: AppTextStyles.interCaption.copyWith(
+                                      letterSpacing: 1,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
                           ),
                         ),
                         const SizedBox(height: 40),
@@ -327,11 +333,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
           children: [
             Text(
               'Set Meditation Time',
-              style: GoogleFonts.cormorantGaramond(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTextStyles.cormorantDialogTitle,
             ),
             const SizedBox(height: 20),
             Row(
@@ -372,10 +374,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
                   },
                   child: Text(
                     "Set",
-                    style: GoogleFonts.inter(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.interSubSemiBold,
                   ),
                 ),
                 TextButton(
@@ -389,7 +388,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     "Cancel",
-                    style: GoogleFonts.inter(color: AppColors.textSecondary),
+                    style: AppTextStyles.interSub,
                   ),
                 ),
               ],
@@ -430,10 +429,8 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
                     (context, index) => Center(
                       child: Text(
                         index.toString().padLeft(2, '0'),
-                        style: GoogleFonts.cormorantGaramond(
+                        style: AppTextStyles.cormorantDialogHeading.copyWith(
                           fontSize: 26,
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -445,8 +442,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
         const SizedBox(height: 6),
         Text(
           tag,
-          style: GoogleFonts.inter(
-            fontSize: 11,
+          style: AppTextStyles.interCaption.copyWith(
             color: AppColors.textTertiary,
             letterSpacing: 1,
           ),

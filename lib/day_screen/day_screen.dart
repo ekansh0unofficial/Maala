@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:maala_app/services/localization_service.dart';
 import 'package:maala_app/services/shared_pref_helper.dart';
 import 'package:maala_app/services/theme_service.dart';
+import 'package:maala_app/theme/app_text_styles.dart';
 import 'package:maala_app/theme/app_theme.dart';
 import 'package:maala_app/themes/meditation_themes.dart';
 import 'package:maala_app/widgets/adaptive_banner_ad.dart';
@@ -11,10 +11,10 @@ class DayScreen extends StatefulWidget {
   const DayScreen({super.key});
 
   @override
-  State<DayScreen> createState() => _DayScreenState();
+  State<DayScreen> createState() => DayScreenState();
 }
 
-class _DayScreenState extends State<DayScreen> {
+class DayScreenState extends State<DayScreen> {
   int _streak = 0;
   int _bestStreak = 0;
   int _todayMalas = 0;
@@ -27,18 +27,24 @@ class _DayScreenState extends State<DayScreen> {
     _loadData();
   }
 
+  // Read-only at startup; setState would be a no-op before first build.
   void _loadData() {
-    setState(() {
-      _streak = SharedPrefHelper.getStreak();
-      _bestStreak = SharedPrefHelper.getBestStreak();
-      // Bug fix: this used to read "session" malas, which get wiped by the
-      // reset button on the counter screen. That made "Today" silently
-      // drop to 0 even after real progress earlier the same day. Now reads
-      // a date-scoped counter that only rolls over at midnight.
-      _todayMalas = SharedPrefHelper.getTodayMalas();
-      _totalMalas = SharedPrefHelper.getTotalMalas();
-      _totalChants = SharedPrefHelper.getTotalChants();
-    });
+    _streak = SharedPrefHelper.getStreak();
+    _bestStreak = SharedPrefHelper.getBestStreak();
+    // Bug fix: this used to read "session" malas, which get wiped by the
+    // reset button on the counter screen. That made "Today" silently
+    // drop to 0 even after real progress earlier the same day. Now reads
+    // a date-scoped counter that only rolls over at midnight.
+    _todayMalas = SharedPrefHelper.getTodayMalas();
+    _totalMalas = SharedPrefHelper.getTotalMalas();
+    _totalChants = SharedPrefHelper.getTotalChants();
+  }
+
+  /// Refreshes stats from disk. Called when the Day tab is selected so
+  /// the counters reflect any progress made on other tabs.
+  void refresh() {
+    _loadData();
+    if (mounted) setState(() {});
   }
 
   @override
@@ -62,18 +68,15 @@ class _DayScreenState extends State<DayScreen> {
                     children: [
                       Text(
                         AppLocalizations.translate('day'),
-                        style: GoogleFonts.cormorantGaramond(
-                          color: AppColors.textPrimary,
+                        style: AppTextStyles.cormorantHeadline.copyWith(
                           fontSize: 32,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         AppLocalizations.translate('streak'),
-                        style: GoogleFonts.inter(
+                        style: AppTextStyles.interXs.copyWith(
                           color: AppColors.textTertiary,
-                          fontSize: 12,
                           letterSpacing: 1,
                         ),
                       ),
@@ -152,19 +155,14 @@ class _DayScreenState extends State<DayScreen> {
             children: [
               Text(
                 '$_streak ${_streak == 1 ? AppLocalizations.translate('dayLabel') : AppLocalizations.translate('daysLabel')} ${AppLocalizations.translate('streak')}',
-                style: GoogleFonts.cormorantGaramond(
+                style: AppTextStyles.cormorantTitle.copyWith(
                   color: theme.primaryAccent,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               if (_bestStreak > 0)
                 Text(
                   'Best: $_bestStreak days',
-                  style: GoogleFonts.inter(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
-                  ),
+                  style: AppTextStyles.interBody,
                 ),
             ],
           ),
@@ -193,19 +191,12 @@ class _DayScreenState extends State<DayScreen> {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.inter(
-                color: AppColors.textSecondary,
-                fontSize: 15,
-              ),
+              style: AppTextStyles.interBodyLg,
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.inter(
-              color: AppColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTextStyles.interTitle,
           ),
         ],
       ),
@@ -219,11 +210,10 @@ class _DayScreenState extends State<DayScreen> {
       children: [
         Text(
           AppLocalizations.translate('mantra'),
-          style: GoogleFonts.inter(
+          style: AppTextStyles.interCaptionMedium.copyWith(
             color: AppColors.textTertiary,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
             letterSpacing: 1.5,
+            fontWeight: FontWeight.w600,
           ),
         ),
         const SizedBox(height: 8),
@@ -238,9 +228,9 @@ class _DayScreenState extends State<DayScreen> {
           child: Text(
             currentMantra,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              color: theme.primaryAccent,
+            style: AppTextStyles.interMantra.copyWith(
               fontSize: 22,
+              color: theme.primaryAccent,
               letterSpacing: 2,
             ),
           ),

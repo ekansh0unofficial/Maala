@@ -17,7 +17,6 @@ dependencies:
   path_provider: ^2.1.5
   shared_preferences: ^2.5.3
   intl: any
-  google_fonts: ^6.2.1
   image_color_scheme: ^1.0.5
   google_mobile_ads: ^5.2.0
 
@@ -34,6 +33,27 @@ flutter:
     - assets/images/
     - assets/audio/
     - assets/fonts/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+    - family: CormorantGaramond
+      fonts:
+        - asset: assets/fonts/CormorantGaramond-SemiBold.ttf
+          weight: 600
 
 flutter_launcher_icons:
   image_path: "assets/images/icon_image.jpg"

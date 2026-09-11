@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/app_theme.dart';
 import '../themes/meditation_themes.dart';
 
@@ -159,17 +159,14 @@ class _MalaCompleteOverlayState extends State<MalaCompleteOverlay>
                           const SizedBox(height: 14),
                           Text(
                             '${widget.countLimit}',
-                            style: GoogleFonts.cormorantGaramond(
-                              fontSize: 44,
-                              fontWeight: FontWeight.w600,
+                            style: AppTextStyles.cormorantHuge.copyWith(
                               color: accent,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${widget.malasCount} mala${widget.malasCount > 1 ? 's' : ''} completed today',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
+                            style: AppTextStyles.interBodyLg.copyWith(
                               color: AppColors.textPrimary.withValues(
                                 alpha: 0.8,
                               ),
@@ -188,9 +185,7 @@ class _MalaCompleteOverlayState extends State<MalaCompleteOverlay>
                                 const SizedBox(width: 4),
                                 Text(
                                   '${widget.streak} day streak',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
+                                  style: AppTextStyles.interBodySemiBold.copyWith(
                                     color: accent,
                                   ),
                                 ),
