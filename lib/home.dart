@@ -26,7 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final GlobalKey<DayScreenState> _dayKey = GlobalKey<DayScreenState>();
 
-  List<Widget> _buildScreens() => [
+  // Built once: recreating these on every build would destroy and re-create
+  // the TimerScreen state (re-running TimerHelper.initialize and
+  // re-registering tick callbacks) on each orientation/nav rebuild.
+  late final List<Widget> _screens = [
     const CounterScreen(),
     const TimerScreen(),
     DayScreen(key: _dayKey),
@@ -99,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection:
                       isPortrait ? Axis.horizontal : Axis.vertical,
                   physics: const BouncingScrollPhysics(),
-                  children: _buildScreens(),
+                  children: _screens,
                 ),
               ),
               if (isPortrait)

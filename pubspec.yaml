@@ -1,7 +1,7 @@
 name: maala_app
 description: "Maala - a japa mala counter and meditation timer app."
 publish_to: 'none'
-version: 1.0.7+11
+version: 1.0.8+14
 
 environment:
   sdk: ^3.7.2
@@ -19,6 +19,7 @@ dependencies:
   intl: any
   image_color_scheme: ^1.0.5
   google_mobile_ads: ^5.2.0
+  in_app_review: ^2.0.10
 
 dev_dependencies:
   flutter_test:

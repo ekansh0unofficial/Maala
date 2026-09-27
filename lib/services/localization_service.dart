@@ -42,6 +42,8 @@ class AppLocalizations {
       'today': 'Today',
       'tapToCount': 'Tap anywhere to count',
       'longPressFocus': 'Long-press for focus mode',
+      'rateMaala': 'Rate Maala',
+      'rateMaalaSub': 'Love your practice? A review helps others find us',
     },
     'hi': {
       'pray': 'प्रार्थना',
@@ -81,6 +83,8 @@ class AppLocalizations {
       'today': 'आज',
       'tapToCount': 'गिनने के लिए कहीं भी टैप करें',
       'longPressFocus': 'फोकस मोड के लिए दबाकर रखें',
+      'rateMaala': 'Maala को रेट करें',
+      'rateMaalaSub': 'साधना पसंद आई? आपकी समीक्षा दूसरों तक पहुँचाएगी',
     },
   };
 

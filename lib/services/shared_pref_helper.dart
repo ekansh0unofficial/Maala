@@ -45,9 +45,22 @@ class SharedPrefHelper {
   static const _todayMalasDateKey = 'today_malas_date';
   static const _todayMalasKey = 'today_malas';
 
+  // Install date + in-app review prompt state
+  static const _installDateKey = 'install_date_ms';
+  static const _reviewRatedKey = 'review_rated';
+  static const _reviewDontAskKey = 'review_dont_ask';
+  static const _reviewPromptCountKey = 'review_prompt_count';
+  static const _reviewLastPromptKey = 'review_last_prompt_ms';
+
   /// Call this once in app initialization or first screen
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+    if (!_prefs.containsKey(_installDateKey)) {
+      await _prefs.setInt(
+        _installDateKey,
+        DateTime.now().millisecondsSinceEpoch,
+      );
+    }
   }
 
   // Counter
@@ -199,4 +212,24 @@ class SharedPrefHelper {
   // Focus mode
   static bool getFocusMode() => _prefs.getBool(_focusModeKey) ?? false;
   static void setFocusMode(bool value) => _prefs.setBool(_focusModeKey, value);
+
+  // Install date (stamped once on first launch)
+  static int getInstallDateMs() =>
+      _prefs.getInt(_installDateKey) ??
+      DateTime.now().millisecondsSinceEpoch;
+
+  // In-app review prompt state
+  static bool getReviewRated() => _prefs.getBool(_reviewRatedKey) ?? false;
+  static void setReviewRated(bool value) =>
+      _prefs.setBool(_reviewRatedKey, value);
+  static bool getReviewDontAsk() => _prefs.getBool(_reviewDontAskKey) ?? false;
+  static void setReviewDontAsk(bool value) =>
+      _prefs.setBool(_reviewDontAskKey, value);
+  static int getReviewPromptCount() =>
+      _prefs.getInt(_reviewPromptCountKey) ?? 0;
+  static void setReviewPromptCount(int value) =>
+      _prefs.setInt(_reviewPromptCountKey, value);
+  static int? getReviewLastPromptMs() => _prefs.getInt(_reviewLastPromptKey);
+  static void setReviewLastPromptMs(int value) =>
+      _prefs.setInt(_reviewLastPromptKey, value);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maala_app/services/localization_service.dart';
+import 'package:maala_app/services/rate_prompt_service.dart';
 import 'package:maala_app/services/sound_helper.dart';
 import 'package:maala_app/services/theme_service.dart';
 import 'package:maala_app/theme/app_text_styles.dart';
@@ -86,6 +87,12 @@ class _CounterScreenState extends State<CounterScreen> {
 
       Future.delayed(const Duration(milliseconds: 1500), () {
         if (mounted) setState(() => _showCompletionOverlay = false);
+        // Ask for a Play review only after the celebration has finished,
+        // never during focus mode. The service itself enforces
+        // malas/days/cooldown/lifetime-cap gates.
+        if (mounted && !_focusMode && !_dialogOpen) {
+          RatePromptService.promptIfEligible();
+        }
       });
     } else {
       VibrationService.vibrate(durationMs: 30);

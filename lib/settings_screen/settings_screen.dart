@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maala_app/services/localization_service.dart';
+import 'package:maala_app/services/rate_prompt_service.dart';
 import 'package:maala_app/services/screen_awake_service.dart';
 import 'package:maala_app/settings_screen/image_picker.dart';
 import 'package:maala_app/settings_screen/sound_picker.dart';
@@ -243,6 +244,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       () => _saveCountLimit(_countLimitController.text),
                 ),
               ),
+            ),
+            const SizedBox(height: 24),
+            _sectionLabel('SUPPORT'),
+            const SizedBox(height: 8),
+            _buildNavTile(
+              title: AppLocalizations.translate('rateMaala'),
+              icon: Icons.star_outline,
+              onTap: RatePromptService.openStoreListing,
             ),
             const SizedBox(height: 24),
             const SizedBox(height: 12),

@@ -32,6 +32,11 @@ class TimerHelper {
 
   static void clearCompletedFlag() => _justCompleted = false;
 
+  /// Releases the UI tick callback (called from the owning screen's
+  /// `dispose`) so a stale closure can never be invoked after the widget
+  /// is gone.
+  static void detachTickCallback() => _onTick = null;
+
   static void initialize(Function() onTick) {
     _onTick = onTick;
 

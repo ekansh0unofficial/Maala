@@ -5,7 +5,9 @@ import '../themes/meditation_themes.dart';
 
 /// Full-screen celebratory moment when a meditation session finishes.
 /// Mirrors the mala-complete overlay's animated style (scale + fade + scrim)
-/// with a calm, session-appropriate copy. Auto-dismisses or on tap.
+/// with a calm, session-appropriate copy. Stays fully visible while mounted —
+/// the parent ([TimerScreen]) keeps it up until the three-bell alarm Future
+/// resolves — and dismisses early on tap via [onDismiss].
 class TimerCompleteOverlay extends StatefulWidget {
   final String durationLabel;
   final MeditationTheme theme;
@@ -46,17 +48,17 @@ class _TimerCompleteOverlayState extends State<TimerCompleteOverlay>
       ),
     );
 
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
       ),
     );
 
     _scrimFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.2, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
       ),
     );
 
@@ -76,8 +78,7 @@ class _TimerCompleteOverlayState extends State<TimerCompleteOverlay>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final scrimOpacity =
-            0.45 * _scrimFadeAnimation.value * _fadeAnimation.value;
+        final scrimOpacity = 0.45 * _scrimFadeAnimation.value;
 
         return Positioned.fill(
           child: GestureDetector(

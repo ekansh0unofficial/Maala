@@ -58,19 +58,22 @@ class _MalaCompleteOverlayState extends State<MalaCompleteOverlay>
       ),
     );
 
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    // Entrance fade only — the overlay stays fully visible for its whole
+    // lifetime (the parent removes it after ~1500ms). Fading to zero while
+    // still mounted left an invisible tap-blocker on top of the counter.
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.65, 1.0, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.25, curve: Curves.easeOut),
       ),
     );
 
-    // Scrim fades in fast, out slow-ish with the card, so the background
-    // dim never feels like a hard flash.
+    // Scrim fades in fast and holds, so the background dim never feels
+    // like a hard flash.
     _scrimFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.2, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.25, curve: Curves.easeOut),
       ),
     );
 
@@ -95,8 +98,7 @@ class _MalaCompleteOverlayState extends State<MalaCompleteOverlay>
         // instead of centered. Positioned.fill + Center makes it a proper
         // full-screen celebratory moment, and the scrim gives it the focus
         // this moment deserves instead of competing with the counter behind it.
-        final scrimOpacity =
-            0.45 * _scrimFadeAnimation.value * _fadeAnimation.value;
+        final scrimOpacity = 0.45 * _scrimFadeAnimation.value;
 
         return Positioned.fill(
           child: GestureDetector(

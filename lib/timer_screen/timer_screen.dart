@@ -29,15 +29,19 @@ class _TimerScreenState extends State<TimerScreen> {
     super.initState();
     TimerHelper.initialize(_updateRemaining);
     _isRunning = TimerHelper.isRunning;
+    _remaining = TimerHelper.remaining;
     _handleJustCompleted();
   }
 
   // Called on every timer event. The ticking HH:MM:SS readout is isolated
   // to notifier-driven rebuilds (see the ValueListenableBuilder), so this
   // only needs to refresh state that changes rarely (running flag) plus the
-  // completion overlay — not the whole tree every second.
+  // completion overlay — not the whole tree every second. [_remaining] is
+  // still synced silently on every call (no setState) so the start-button
+  // guard and the time-picker initial value never go stale.
   void _updateRemaining() {
     if (!mounted) return;
+    _remaining = TimerHelper.remaining;
     final running = TimerHelper.isRunning;
     if (running != _isRunning) {
       setState(() => _isRunning = running);
@@ -78,7 +82,10 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   void _startTimer() {
-    if (_remaining <= Duration.zero) return;
+    // Source of truth is the helper (wall-clock reconciled); the local copy
+    // is kept in sync by [_updateRemaining] but the guard reads live state
+    // so a stale field can never make Start silently no-op.
+    if (TimerHelper.remaining <= Duration.zero) return;
     TimerHelper.start();
     setState(() => _isRunning = true);
   }
@@ -116,6 +123,12 @@ class _TimerScreenState extends State<TimerScreen> {
       await SoundHelper.play();
     }
     if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    TimerHelper.detachTickCallback();
+    super.dispose();
   }
 
   @override
@@ -296,15 +309,24 @@ class _TimePickerDialog extends StatefulWidget {
 }
 
 class _TimePickerDialogState extends State<_TimePickerDialog> {
-  late final _hourController = FixedExtentScrollController(
-    initialItem: widget.initial.inHours.clamp(0, 23),
-  );
+  late int _hour;
+  late int _minute;
+  late int _second;
+  late final _hourController = FixedExtentScrollController(initialItem: _hour);
   late final _minuteController = FixedExtentScrollController(
-    initialItem: widget.initial.inMinutes.remainder(60),
+    initialItem: _minute,
   );
   late final _secondController = FixedExtentScrollController(
-    initialItem: widget.initial.inSeconds.remainder(60),
+    initialItem: _second,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _hour = widget.initial.inHours.clamp(0, 23);
+    _minute = widget.initial.inMinutes.remainder(60);
+    _second = widget.initial.inSeconds.remainder(60);
+  }
 
   @override
   void dispose() {
@@ -316,9 +338,6 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    int hour = widget.initial.inHours.clamp(0, 23);
-    int minute = widget.initial.inMinutes.remainder(60);
-    int second = widget.initial.inSeconds.remainder(60);
     final theme = ThemeService.current;
 
     return Dialog(
@@ -339,19 +358,19 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _dial('hr', 23, _hourController, (val) => hour = val, theme),
+                _dial('hr', 23, _hourController, (val) => _hour = val, theme),
                 _dial(
                   'min',
                   59,
                   _minuteController,
-                  (val) => minute = val,
+                  (val) => _minute = val,
                   theme,
                 ),
                 _dial(
                   'sec',
                   59,
                   _secondController,
-                  (val) => second = val,
+                  (val) => _second = val,
                   theme,
                 ),
               ],
@@ -370,7 +389,7 @@ class _TimePickerDialogState extends State<_TimePickerDialog> {
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    TimerHelper.updateDuration(hour, minute, second);
+                    TimerHelper.updateDuration(_hour, _minute, _second);
                   },
                   child: Text(
                     "Set",
